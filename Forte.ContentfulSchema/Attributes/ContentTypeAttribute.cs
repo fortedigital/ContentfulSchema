@@ -1,6 +1,6 @@
 using System;
 
-namespace ContentfulExt.Attributes
+namespace Forte.ContentfulSchema.Attributes
 {
     public class ContentTypeAttribute : Attribute
     {

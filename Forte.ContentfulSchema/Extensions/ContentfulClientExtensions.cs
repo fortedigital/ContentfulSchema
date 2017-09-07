@@ -1,13 +1,13 @@
-using System.Threading.Tasks;
-using Contentful.Core.Models;
-using Contentful.Core;
-using ContentfulExt.Attributes;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
+using Contentful.Core;
+using Contentful.Core.Models;
 using Contentful.Core.Search;
+using Forte.ContentfulSchema.Attributes;
 
-namespace ContentfulExt.Extensions
+namespace Forte.ContentfulSchema.Extensions
 {
     public static class ContentfulClientExtensions
     {

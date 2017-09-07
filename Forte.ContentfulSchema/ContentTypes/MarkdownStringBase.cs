@@ -1,11 +1,9 @@
 using System.IO;
-using System.Text.Encodings.Web;
 using CommonMark;
 using CommonMark.Formatters;
 using CommonMark.Syntax;
-using Newtonsoft.Json;
 
-namespace ContentfulExt.ContentTypes
+namespace Forte.ContentfulSchema.ContentTypes
 {
     public abstract class MarkdownStringBase : WrappedString, IMarkdownString
     {

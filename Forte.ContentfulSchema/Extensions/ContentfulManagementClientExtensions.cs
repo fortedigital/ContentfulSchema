@@ -1,17 +1,15 @@
 using System;
-using System.Reflection;
-using System.Linq;
-using System.Threading.Tasks;
-using Contentful.Core.Models;
-using Contentful.Core;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using Contentful.Core;
+using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
-using ContentfulExt.Attributes;
-using ContentfulExt.ContentTypes;
-using System.ComponentModel.DataAnnotations;
-using ContentfulExt.Core;
+using Forte.ContentfulSchema.ContentTypes;
+using Forte.ContentfulSchema.Core;
 
-namespace ContentfulExt.Extensions
+namespace Forte.ContentfulSchema.Extensions
 {
     public static class ContentfulManagementClientExtensions
     {

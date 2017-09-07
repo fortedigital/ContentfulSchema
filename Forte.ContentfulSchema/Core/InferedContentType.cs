@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Contentful.Core.Models;
-using ContentfulExt.Attributes;
-using ContentfulExt.Extensions;
+using Forte.ContentfulSchema.Attributes;
 
-namespace ContentfulExt.Core
+namespace Forte.ContentfulSchema.Core
 {
     public class InferedContentType
     {

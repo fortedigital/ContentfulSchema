@@ -1,9 +1,8 @@
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 
-namespace ContentfulExt.ContentTypes
+namespace Forte.ContentfulSchema.ContentTypes
 {
     public abstract class LongStringBase : WrappedString, ILongString
     {

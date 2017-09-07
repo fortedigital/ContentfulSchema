@@ -2,11 +2,12 @@
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Contentful.Core.Models;
-using ContentfulExt.Attributes;
-using ContentfulExt.Core;
+using Forte.ContentfulSchema.Attributes;
+//using Contentful.Core.Models;
+using Forte.ContentfulSchema.Core;
 using Xunit;
 
-namespace ContentfulExt.Tests
+namespace Forte.ContentfulSchema.Tests
 {
     public class SchemaGeneratorTests
     {

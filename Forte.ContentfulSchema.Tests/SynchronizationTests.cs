@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -6,12 +5,12 @@ using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
-using ContentfulExt.Attributes;
-using ContentfulExt.Extensions;
+using Forte.ContentfulSchema.Attributes;
+using Forte.ContentfulSchema.Extensions;
 using Moq;
 using Xunit;
 
-namespace ContentfulExt.Tests
+namespace Forte.ContentfulSchema.Tests
 {
     public class SychronizationTests
     {
@@ -47,7 +46,7 @@ namespace ContentfulExt.Tests
                 .Verify(
                     m => m.GetEditorInterfaceAsync(It.IsAny<string>(), It.IsAny<string>(),
                         It.IsAny<CancellationToken>()),
-                    Times.Once);
+                    Times.Exactly(4));
         }
     }
 

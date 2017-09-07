@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Contentful.Core.Models;
-using ContentfulExt.Attributes;
+using Forte.ContentfulSchema.Attributes;
 
-namespace ContentfulExt.ContentTypes
+namespace Forte.ContentfulSchema.ContentTypes
 {
     public class Entry : IEntry
     {

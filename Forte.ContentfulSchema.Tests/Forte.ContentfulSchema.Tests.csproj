@@ -12,6 +12,6 @@
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta4-build3742" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ContentfulExt\ContentfulExt.csproj" />
+    <ProjectReference Include="..\Forte.ContentfulSchema\Forte.ContentfulSchema.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 using Contentful.Core.Models;
 
-namespace ContentfulExt.ContentTypes
+namespace Forte.ContentfulSchema.ContentTypes
 {
     public interface IEntry{
         string Id{get;}

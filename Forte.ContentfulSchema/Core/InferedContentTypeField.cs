@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
-using ContentfulExt.ContentTypes;
+using Forte.ContentfulSchema.ContentTypes;
 
-namespace ContentfulExt.Core
+namespace Forte.ContentfulSchema.Core
 {
     public class InferedContentTypeField
     {

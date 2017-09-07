@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Contentful.Core.Models;
-using ContentfulExt.Attributes;
+using Forte.ContentfulSchema.Attributes;
 
-namespace ContentfulExt.Core
+namespace Forte.ContentfulSchema.Core
 {
     public class SchemaGenerator
     {
