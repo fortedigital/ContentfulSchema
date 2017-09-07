@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Contentful.Core.Models;
 using ContentfulExt.Attributes;
 

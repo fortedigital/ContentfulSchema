@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Contentful.Core.Models.Management;
 using ContentfulExt.Attributes;
 using ContentfulExt.ContentTypes;
+using System.ComponentModel.DataAnnotations;
 
 namespace ContentfulExt.Extensions
 {
