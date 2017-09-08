@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models;
 
@@ -7,13 +8,17 @@ namespace Forte.ContentfulSchema.Core
     public class ContentTypeUpdater
     {
         private readonly IContentfulManagementClient _contentfulManagementClient;
+        private readonly IEqualityComparer<ContentType> _contentTypeComparer;
 
-        public ContentTypeUpdater(IContentfulManagementClient contentfulManagementClient)
+        public ContentTypeUpdater(
+            IContentfulManagementClient contentfulManagementClient,
+            IEqualityComparer<ContentType> contentTypeComparer)
         {
             _contentfulManagementClient = contentfulManagementClient;
+            _contentTypeComparer = contentTypeComparer;
         }
 
-        public async Task SyncContentTypes(InferedContentType inferedContentType, ContentType existingContentType)
+        public async Task<ContentType> SyncContentTypes(InferedContentType inferedContentType, ContentType existingContentType)
         {
             ContentType contentType = inferedContentType.ConvertToContentType();
 
@@ -23,13 +28,15 @@ namespace Forte.ContentfulSchema.Core
                 await _contentfulManagementClient.ActivateContentTypeAsync(contentType.SystemProperties.Id,
                     contentType.SystemProperties.Version.Value);
             }
-            else if (inferedContentType.IsSameAs(existingContentType) == false)
+            else if (_contentTypeComparer.Equals(contentType, existingContentType) == false)
             {
                 contentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(contentType,
                     version: existingContentType?.SystemProperties.Version);
                 await _contentfulManagementClient.ActivateContentTypeAsync(contentType.SystemProperties.Id,
                     contentType.SystemProperties.Version.Value);
             }
+
+            return contentType;
         }
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models;
-using Forte.ContentfulSchema.ContentTypes;
 
 namespace Forte.ContentfulSchema.Core
 {
@@ -17,7 +16,7 @@ namespace Forte.ContentfulSchema.Core
         public SchemaMerger(IContentfulManagementClient contentfulManagementClient)
         {
             _contentfulManagementClient = contentfulManagementClient;
-            _contentTypeUpdater = new ContentTypeUpdater(contentfulManagementClient);
+            _contentTypeUpdater = new ContentTypeUpdater(contentfulManagementClient, new ContentTypeComparer(new FieldComparer()));
             _editorInterfaceUpdater = new EditorInterfaceUpdater(contentfulManagementClient);
         }
         

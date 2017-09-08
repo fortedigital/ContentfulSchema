@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using Contentful.Core.Models;
 using Forte.ContentfulSchema.Attributes;
-//using Contentful.Core.Models;
 using Forte.ContentfulSchema.Core;
 using Xunit;
 

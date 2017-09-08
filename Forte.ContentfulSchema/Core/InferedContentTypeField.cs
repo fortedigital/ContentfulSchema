@@ -27,58 +27,58 @@ namespace Forte.ContentfulSchema.Core
 
         public Schema FieldItems => this.GetFieldItemsSchema();
 
-        internal bool IsSameAs(Field field)
-        {
-            if (field.Id != this.FieldId)
-                return false;
-
-            if (field.Name != this.Name)
-                return false;
-
-            if (field.Type != this.FieldType)
-                return false;
-
-            if ((field.Disabled == false || field.Omitted == false) && this.IsObsolete)
-                return false;
-
-            if ((field.Disabled || field.Omitted) && this.IsObsolete == false)
-                return false;
-
-            if (field.LinkType != this.LinkType)
-                return false;
-
-            if (field.Items == null && this.FieldItems != null)
-                return false;
-
-            if (field.Items != null)
-            {
-                if (this.FieldItems == null)
-                    return false;
-
-                if (field.Items.LinkType != this.FieldItems.LinkType)
-                    return false;
-
-                if (field.Items.Type != this.FieldItems.Type)
-                    return false;
-
-                if (field.Items.Validations == null && this.FieldItems.Validations != null)
-                    return false;
-
-                if (field.Items.Validations == null && this.FieldItems.Validations != null)
-                    return false;
-
-                if (field.Items.Validations != null)
-                {
-                    if (this.FieldItems.Validations == null)
-                        return false;
-
-                    if (field.Items.Validations.Count != this.FieldItems.Validations.Count)
-                        return false;
-                }
-            }
-
-            return true;
-        }
+//        internal bool IsSameAs(Field field)
+//        {
+//            if (field.Id != this.FieldId)
+//                return false;
+//
+//            if (field.Name != this.Name)
+//                return false;
+//
+//            if (field.Type != this.FieldType)
+//                return false;
+//
+//            if ((field.Disabled == false || field.Omitted == false) && this.IsObsolete)
+//                return false;
+//
+//            if ((field.Disabled || field.Omitted) && this.IsObsolete == false)
+//                return false;
+//
+//            if (field.LinkType != this.LinkType)
+//                return false;
+//
+//            if (field.Items == null && this.FieldItems != null)
+//                return false;
+//
+//            if (field.Items != null)
+//            {
+//                if (this.FieldItems == null)
+//                    return false;
+//
+//                if (field.Items.LinkType != this.FieldItems.LinkType)
+//                    return false;
+//
+//                if (field.Items.Type != this.FieldItems.Type)
+//                    return false;
+//
+//                if (field.Items.Validations == null && this.FieldItems.Validations != null)
+//                    return false;
+//
+//                if (field.Items.Validations == null && this.FieldItems.Validations != null)
+//                    return false;
+//
+//                if (field.Items.Validations != null)
+//                {
+//                    if (this.FieldItems.Validations == null)
+//                        return false;
+//
+//                    if (field.Items.Validations.Count != this.FieldItems.Validations.Count)
+//                        return false;
+//                }
+//            }
+//
+//            return true;
+//        }
 
         private Schema GetFieldItemsSchema()
         {
