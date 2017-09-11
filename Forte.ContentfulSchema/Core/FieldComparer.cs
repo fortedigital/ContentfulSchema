@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Contentful.Core.Models;
 
 namespace Forte.ContentfulSchema.Core
@@ -21,13 +21,12 @@ namespace Forte.ContentfulSchema.Core
 
             if (first.Omitted != second.Omitted)
                 return false;
-            
-            
-//            if ((field.Disabled == false || field.Omitted == false) && this.IsObsolete)
-//                return false;
-//
-//            if ((field.Disabled || field.Omitted) && this.IsObsolete == false)
-//                return false;
+
+            if (first.Localized != second.Localized)
+                return false;
+
+            if (first.Required != second.Required)
+                return false;
 
             if (first.LinkType != second.LinkType)
                 return false;
@@ -49,17 +48,13 @@ namespace Forte.ContentfulSchema.Core
                 if (first.Items.Validations == null && second.Items.Validations != null)
                     return false;
 
-                if (first.Items.Validations == null && second.Items.Validations != null)
+                if (first.Items.Validations != null && second.Items.Validations == null)
                     return false;
 
-                if (first.Items.Validations != null)
-                {
-                    if (second.Items.Validations == null)
-                        return false;
-
-                    if (first.Items.Validations.Count != second.Items.Validations.Count)
-                        return false;
-                }
+                // It's almost impossible to check if there are any differences in validators
+                // It's not possible to check that through IFieldValidator interface
+                if (first.Items.Validations != null || second.Items.Validations != null)
+                    return false;
             }
 
             return true;
