@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Contentful.Core.Models;
 
@@ -22,6 +22,9 @@ namespace Forte.ContentfulSchema.Core
                 return false;
 
             if (first.DisplayField != second.DisplayField)
+                return false;
+
+            if (first.Description != second.Description)
                 return false;
 
             if (first.Fields.Count != second.Fields.Count)

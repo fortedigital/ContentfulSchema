@@ -114,7 +114,7 @@ namespace Forte.ContentfulSchema.Tests
         };
     }
 
-    internal static class FielTupleExtensions
+    internal static class FieldTupleExtensions
     {
         internal static string PrettyPrint(this (Field first, Field second) pair)
         {
