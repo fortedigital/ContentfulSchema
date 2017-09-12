@@ -11,10 +11,11 @@ namespace Forte.ContentfulSchema.Extensions
         {
             var schemaGenerator = new SchemaGenerator();
             var schemaMerger = new SchemaMerger(client);
-            
+
             var inferedContentTypes = schemaGenerator.GenerateSchema(typeof(TApp).GetTypeInfo().Assembly.GetTypes());
 
             var existingContentTypes = await client.GetContentTypesAsync();
             await schemaMerger.MergeSchema(inferedContentTypes, existingContentTypes);
+        }
     }
 }

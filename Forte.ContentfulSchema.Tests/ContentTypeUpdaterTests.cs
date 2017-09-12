@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Contentful.Core;
@@ -56,7 +56,7 @@ namespace Forte.ContentfulSchema.Tests
         {
             var updater = new ContentTypeUpdater(
                 _contentfulManagementClientMock.Object, _contentTypeComparerMock.Object);
-            await updater.SyncContentTypes(_inferedContentType, null);
+            await updater.SyncContentTypes(_inferedContentType.ConvertToContentType(), null);
 
             _contentfulManagementClientMock.Verify(m =>
                 m.CreateOrUpdateContentTypeAsync(It.IsAny<ContentType>(), It.IsAny<string>(),
@@ -68,7 +68,7 @@ namespace Forte.ContentfulSchema.Tests
         {
             var updater = new ContentTypeUpdater(
                 _contentfulManagementClientMock.Object, _contentTypeComparerMock.Object);
-            await updater.SyncContentTypes(_inferedContentType,
+            await updater.SyncContentTypes(_inferedContentType.ConvertToContentType(),
                 new ContentType {SystemProperties = new SystemProperties() {Version = 999}});
 
             _contentfulManagementClientMock.Verify(m =>
