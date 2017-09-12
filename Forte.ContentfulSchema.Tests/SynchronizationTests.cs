@@ -46,7 +46,7 @@ namespace Forte.ContentfulSchema.Tests
                 .Verify(
                     m => m.GetEditorInterfaceAsync(It.IsAny<string>(), It.IsAny<string>(),
                         It.IsAny<CancellationToken>()),
-                    Times.Exactly(4));
+                    Times.Exactly(5));
         }
     }
 

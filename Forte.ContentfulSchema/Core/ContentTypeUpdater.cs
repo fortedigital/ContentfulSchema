@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models;
@@ -18,25 +18,23 @@ namespace Forte.ContentfulSchema.Core
             _contentTypeComparer = contentTypeComparer;
         }
 
-        public async Task<ContentType> SyncContentTypes(InferedContentType inferedContentType, ContentType existingContentType)
+        public async Task<ContentType> SyncContentTypes(ContentType inferedContentType, ContentType existingContentType)
         {
-            ContentType contentType = inferedContentType.ConvertToContentType();
-
             if (existingContentType == null)
             {
-                contentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(contentType);
-                await _contentfulManagementClient.ActivateContentTypeAsync(contentType.SystemProperties.Id,
-                    contentType.SystemProperties.Version.Value);
+                inferedContentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(inferedContentType);
+                await _contentfulManagementClient.ActivateContentTypeAsync(inferedContentType.SystemProperties.Id,
+                    inferedContentType.SystemProperties.Version.Value);
             }
-            else if (_contentTypeComparer.Equals(contentType, existingContentType) == false)
+            else if (_contentTypeComparer.Equals(inferedContentType, existingContentType) == false)
             {
-                contentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(contentType,
+                inferedContentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(inferedContentType,
                     version: existingContentType?.SystemProperties.Version);
-                await _contentfulManagementClient.ActivateContentTypeAsync(contentType.SystemProperties.Id,
-                    contentType.SystemProperties.Version.Value);
+                await _contentfulManagementClient.ActivateContentTypeAsync(inferedContentType.SystemProperties.Id,
+                    inferedContentType.SystemProperties.Version.Value);
             }
 
-            return contentType;
+            return inferedContentType;
         }
     }
 }

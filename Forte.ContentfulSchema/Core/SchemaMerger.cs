@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,50 +28,8 @@ namespace Forte.ContentfulSchema.Core
             {
                 try
                 {
-                    await _contentTypeUpdater.SyncContentTypes(syncItem.Infered, syncItem.Existing);
+                    await _contentTypeUpdater.SyncContentTypes(syncItem.Infered.ConvertToContentType(), syncItem.Existing);
                     await _editorInterfaceUpdater.UpdateEditorInterface(syncItem.Infered);
-//                    ContentType contentType = syncItem.Infered.ConvertToContentType();
-//
-//                    if (syncItem.Existing == null)
-//                    {
-//                        contentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(contentType);
-//                        await _contentfulManagementClient.ActivateContentTypeAsync(contentType.SystemProperties.Id,
-//                            contentType.SystemProperties.Version.Value);
-//                    }
-//                    else if (syncItem.Infered.IsSameAs(syncItem.Existing) == false)
-//                    {
-//                        contentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(contentType,
-//                            version: syncItem.Existing?.SystemProperties.Version);
-//                        await _contentfulManagementClient.ActivateContentTypeAsync(contentType.SystemProperties.Id,
-//                            contentType.SystemProperties.Version.Value);
-//                    }
-
-
-//                    var editorInterface = await _contentfulManagementClient.GetEditorInterfaceAsync(syncItem.Infered.ContentTypeId);
-//
-//                    bool editorInterfaceUpdated = false;
-//                    foreach (var controlToSync in editorInterface.Controls.Join(syncItem.Infered.Fields, c => c.FieldId,
-//                        f => f.FieldId, (c, f) => new {Control = c, Field = f}))
-//                    {
-//                        if (controlToSync.Field.FieldId == "slug" && controlToSync.Control.WidgetId != "slugEditor")
-//                        {
-//                            controlToSync.Control.WidgetId = "slugEditor";
-//                            editorInterfaceUpdated = true;
-//                        }
-//
-//                        if (controlToSync.Field.Property.PropertyType.IsAssignableFrom(typeof(ILongString)) &&
-//                            controlToSync.Control.WidgetId != "multipleLine")
-//                        {
-//                            controlToSync.Control.WidgetId = "multipleLine";
-//                            editorInterfaceUpdated = true;
-//                        }
-//                    }
-//
-//                    if (editorInterfaceUpdated)
-//                    {
-//                        editorInterface = await _contentfulManagementClient.UpdateEditorInterfaceAsync(editorInterface,
-//                            syncItem.Infered.ContentTypeId, editorInterface.SystemProperties.Version.Value);
-//                    }
                 }
                 catch (Exception e)
                 {

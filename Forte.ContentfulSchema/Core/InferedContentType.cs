@@ -21,37 +21,6 @@ namespace Forte.ContentfulSchema.Core
             .Select(f => f.FieldId)
             .FirstOrDefault();
 
-//        public bool IsSameAs(ContentType contentType)
-//        {
-//            if (contentType.SystemProperties.Id != this.ContentTypeId)
-//                return false;
-//
-//            if (contentType.Name != this.Name)
-//                return false;
-//
-//            if (contentType.DisplayField != this.DisplayField)
-//                return false;
-//
-//            if (contentType.Fields.Count != this.Fields.Count)
-//                return false;
-//
-//            var matchedFields = contentType.Fields
-//                .GroupJoin(this.Fields, ctf => ctf.Id, ictf => ictf.FieldId,
-//                    (cf, icf) => new {Field = cf, InferedField = icf.SingleOrDefault()});
-//
-//            foreach (var fieldMatch in matchedFields)
-//            {
-//                // Field was deleted
-//                if (fieldMatch.InferedField == null)
-//                    return false;
-//
-//                if (fieldMatch.InferedField.IsSameAs(fieldMatch.Field) == false)
-//                    return false;
-//            }
-//
-//            return true;
-//        }
-
         public ContentType ConvertToContentType()
         {
             return new ContentType()
