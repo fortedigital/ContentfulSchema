@@ -1,26 +1,29 @@
 using Contentful.Core.Models;
+using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.Discovery;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Forte.ContentfulSchema.Core
 {
     public class ContentSchemaGenerator
     {
         private readonly IContentFieldTypeProvider _contentFieldTypeProvider;
+        private readonly IContentEditorControlProvider _contentEditorControlProvider;
 
-        public ContentSchemaGenerator(IContentFieldTypeProvider contentFieldTypeProvider)
+        public ContentSchemaGenerator(
+            IContentFieldTypeProvider contentFieldTypeProvider,
+            IContentEditorControlProvider contentEditorControlProvider)
         {
-            this._contentFieldTypeProvider = contentFieldTypeProvider;
+            _contentFieldTypeProvider = contentFieldTypeProvider;
+            _contentEditorControlProvider = contentEditorControlProvider;
         }
 
-        public IList<ContentType> GenerateContentSchema(ContentTree contentTree)
+        public IList<ContentSchema> GenerateContentSchema(ContentTree contentTree)
         {
-            var inferedContentTypes = new List<ContentType>();
+            var inferedContentTypes = new List<ContentSchema>();
 
             foreach (var root in contentTree.Roots)
             {
@@ -30,9 +33,9 @@ namespace Forte.ContentfulSchema.Core
             return inferedContentTypes;
         }
 
-        private IList<ContentType> BuildTypesForBranch(ContentNode node)
+        private IList<ContentSchema> BuildTypesForBranch(ContentNode node)
         {
-            var types = new List<ContentType>();
+            var types = new List<ContentSchema>();
 
             types.Add(BuildContentType(node));
             foreach (var child in node.Children)
@@ -43,28 +46,36 @@ namespace Forte.ContentfulSchema.Core
             return types;
         }
 
-        private ContentType BuildContentType(ContentNode node)
+        private ContentSchema BuildContentType(ContentNode node)
         {
             var fieldBuilder = new ContentFieldBuilder(_contentFieldTypeProvider);
+            var fieldEditorBuilder = new ContentFieldEditorBuilder(_contentEditorControlProvider);
 
             var contentType = new ContentType
             {
                 Name = node.ClrType.Name,
                 SystemProperties = new SystemProperties { Id = node.ContentTypeId },
-                Fields = new List<Field>()
+                Fields = new List<Field>(),
             };
 
-            var inferedFields = node.ClrType.GetProperties()
+            var editorInterface = new EditorInterface
+            {
+                Controls = new List<EditorInterfaceControl>()
+            };
+
+            var inferedProperties = node.ClrType.GetProperties()
                                     .Where(IsContentTypeProperty)
                                     .OrderBy(p => p.GetCustomAttributes<DisplayAttribute>().FirstOrDefault()?.Order ?? 0)
                                     .ToList();
 
-            foreach (var field in inferedFields)
+            foreach (var property in inferedProperties)
             {
-                contentType.Fields.Add(fieldBuilder.BuildContentField(field));
+                var field = fieldBuilder.BuildContentField(property);
+                contentType.Fields.Add(field);
+                editorInterface.Controls.Add(fieldEditorBuilder.GetEditorControl(property, field));
             }
 
-            return contentType;
+            return new ContentSchema(contentType, editorInterface);
         }
 
         private static bool IsContentTypeProperty(PropertyInfo p)

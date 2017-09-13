@@ -7,6 +7,6 @@ namespace Forte.ContentfulSchema.Core
 {
     public interface IContentFieldTypeProvider
     {
-        string GetContentfulTypeFor(PropertyInfo property);
+        string GetContentfulTypeForProperty(PropertyInfo property);
     }
 }

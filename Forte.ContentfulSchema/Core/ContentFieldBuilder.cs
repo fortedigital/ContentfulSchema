@@ -27,7 +27,7 @@ namespace Forte.ContentfulSchema.Core
                                       char.ToLower(property.Name[0]) + property.Name.Substring(1),
                 Name = property.GetCustomAttributes<DisplayAttribute>()
                             .Select(a => a.Prompt).FirstOrDefault() ?? property.Name,
-                Type = contentFieldTypeProvider.GetContentfulTypeFor(property),
+                Type = contentFieldTypeProvider.GetContentfulTypeForProperty(property),
             };
 
             if (fieldDefinition.Type == SystemFieldTypes.Link)
