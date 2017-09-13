@@ -1,0 +1,90 @@
+using Contentful.Core.Models;
+using Contentful.Core.Models.Management;
+using Forte.ContentfulSchema.ContentTypes;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
+namespace Forte.ContentfulSchema.Core
+{
+    public class ContentFieldBuilder
+    {
+        private readonly IContentFieldTypeProvider contentFieldTypeProvider;
+
+        public ContentFieldBuilder(IContentFieldTypeProvider contentFieldTypeProvider)
+        {
+            this.contentFieldTypeProvider = contentFieldTypeProvider;
+        }
+
+        public Field BuildContentField(PropertyInfo property)
+        {
+            var fieldDefinition = new Field
+            {
+                Id = property.GetCustomAttributes<DisplayAttribute>().FirstOrDefault()?.Name ??
+                                      char.ToLower(property.Name[0]) + property.Name.Substring(1),
+                Name = property.GetCustomAttributes<DisplayAttribute>()
+                            .Select(a => a.Prompt).FirstOrDefault() ?? property.Name,
+                Type = contentFieldTypeProvider.GetContentfulTypeFor(property),
+            };
+
+            if (fieldDefinition.Type == SystemFieldTypes.Link)
+            {
+                fieldDefinition.LinkType = GetLinkType(property);
+            }
+
+            if (fieldDefinition.Type == SystemFieldTypes.Array)
+            {
+                fieldDefinition.Items = GetFieldItemsSchema(property);
+            }
+
+            return fieldDefinition;
+        }
+
+        private static string GetLinkType(PropertyInfo property)
+        {
+            if (property.PropertyType == typeof(Asset))
+            {
+                return SystemLinkTypes.Asset;
+            }
+            else
+            {
+                return SystemLinkTypes.Entry;
+            }
+        }
+
+        private Schema GetFieldItemsSchema(PropertyInfo property)
+        {
+            var elementType = property.PropertyType.GetGenericArguments()[0];
+            if (typeof(Entry).IsAssignableFrom(elementType) ||
+                (elementType.IsConstructedGenericType && elementType.GetGenericTypeDefinition() == typeof(Entry<>)))
+            {
+                return new Schema()
+                {
+                    Type = SystemFieldTypes.Link,
+                    LinkType = SystemLinkTypes.Entry,
+                    Validations = new List<IFieldValidator>()
+                };
+            }
+            else if (elementType == typeof(Asset))
+            {
+                return new Schema()
+                {
+                    Type = SystemFieldTypes.Link,
+                    LinkType = SystemLinkTypes.Asset,
+                    Validations = new List<IFieldValidator>()
+                };
+            }
+            else
+            {
+                return new Schema()
+                {
+                    Type = SystemFieldTypes.Symbol,
+                    Validations = new List<IFieldValidator>()
+                };
+            }
+        }
+    }
+}
