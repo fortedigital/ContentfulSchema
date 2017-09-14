@@ -10,7 +10,8 @@ namespace Forte.ContentfulSchema.Core
 {
     public class ContentFieldTypeProvider : IContentFieldTypeProvider
     {
-        private List<(Func<PropertyInfo, bool> Predicate, string ContentfulType)> _typeRules;
+        private List<(Func<PropertyInfo, bool> Predicate, string ContentfulType)> _typeRules = 
+            new List<(Func<PropertyInfo, bool> Predicate, string ContentfulType)>();
 
         public ContentFieldTypeProvider()
         {
@@ -20,8 +21,8 @@ namespace Forte.ContentfulSchema.Core
             AddRule(prop => prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long), SystemFieldTypes.Integer);
             AddRule(prop => prop.PropertyType == typeof(float) || prop.PropertyType == typeof(double), SystemFieldTypes.Number);
             AddRule(prop => prop.PropertyType == typeof(Asset), SystemFieldTypes.Link);
-            AddRule(prop => prop.PropertyType.IsConstructedGenericType && 
-                            prop.PropertyType.GetGenericTypeDefinition() == typeof(Entry<>) , SystemFieldTypes.Link);
+            AddRule(prop => prop.PropertyType.IsConstructedGenericType &&
+                            prop.PropertyType.GetGenericTypeDefinition() == typeof(Entry<>), SystemFieldTypes.Link);
             AddRule(prop => typeof(Entry).IsAssignableFrom(prop.PropertyType), SystemFieldTypes.Link);
             AddRule(prop => prop.PropertyType == typeof(Location), SystemFieldTypes.Location);
             AddRule(prop => prop.PropertyType.IsConstructedGenericType &&

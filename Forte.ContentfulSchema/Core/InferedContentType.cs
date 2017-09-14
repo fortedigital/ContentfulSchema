@@ -8,6 +8,7 @@ using Forte.ContentfulSchema.Attributes;
 
 namespace Forte.ContentfulSchema.Core
 {
+    [Obsolete("Use ContentSchemaGenerator that does not depend on this class")]
     public class InferedContentType
     {
         public string ContentTypeId { get; set; }

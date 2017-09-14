@@ -64,7 +64,7 @@ namespace Forte.ContentfulSchema.Core
                 return new Schema()
                 {
                     Type = SystemFieldTypes.Link,
-                    LinkType = SystemLinkTypes.Entry,
+                    LinkType = GetLinkType(property),
                     Validations = new List<IFieldValidator>()
                 };
             }
@@ -73,7 +73,7 @@ namespace Forte.ContentfulSchema.Core
                 return new Schema()
                 {
                     Type = SystemFieldTypes.Link,
-                    LinkType = SystemLinkTypes.Asset,
+                    LinkType = GetLinkType(property),
                     Validations = new List<IFieldValidator>()
                 };
             }

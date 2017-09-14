@@ -1,7 +1,6 @@
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 using System.Reflection;
-using System.Linq;
 
 namespace Forte.ContentfulSchema.Core
 {
@@ -23,12 +22,10 @@ namespace Forte.ContentfulSchema.Core
 
             if (_provider != null)
             {
-                var fieldControlProvider = _provider.ControlsMap
-                                                .SingleOrDefault(provider => provider.Predicate(property, field));
-
-                if (fieldControlProvider.Control != null)
+                var widgetId = _provider.GetWidgetIdForField(property, field);
+                if (!string.IsNullOrEmpty(widgetId))
                 {
-                    control.WidgetId = fieldControlProvider.Control;
+                    control.WidgetId = widgetId;
                 }
             }
 

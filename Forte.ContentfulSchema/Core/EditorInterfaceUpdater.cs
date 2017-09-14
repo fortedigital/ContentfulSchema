@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.ContentTypes;
+using System;
 
 namespace Forte.ContentfulSchema.Core
 {
+    [Obsolete("Use ContentSchemaGenerator that does not need this class")]
     public class EditorInterfaceUpdater
     {
         private readonly IContentfulManagementClient _contentfulManagementClient;

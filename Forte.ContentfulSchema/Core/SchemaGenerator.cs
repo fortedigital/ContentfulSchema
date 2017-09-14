@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
@@ -9,6 +9,7 @@ using Forte.ContentfulSchema.Attributes;
 
 namespace Forte.ContentfulSchema.Core
 {
+    [Obsolete("Use ContentSchemaGenerator instead")]
     public class SchemaGenerator
     {
         public IImmutableList<InferedContentType> GenerateSchema(IEnumerable<Type> types)
