@@ -5,19 +5,19 @@ using System.Text;
 
 namespace Forte.ContentfulSchema.Discovery
 {
-    public class ContentNode
+    internal class ContentNode : IContentNode
     {
         public string ContentTypeId { get; set; }
 
         public Type ClrType { get; set; }
 
-        public ContentNode Parent { get; set; }
+        public IContentNode Parent { get; set; }
 
-        public IList<ContentNode> Children { get; } = new List<ContentNode>();
+        public IReadOnlyList<IContentNode> Children { get; set; } = new List<ContentNode>();
 
-        public IList<ContentNode> GetAllDescedants()
+        public IReadOnlyList<IContentNode> GetAllDescedants()
         {
-            var descedants = new List<ContentNode>(Children);
+            var descedants = new List<IContentNode>(Children);
 
             foreach (var child in Children)
             {

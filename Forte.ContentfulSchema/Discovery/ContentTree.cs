@@ -2,26 +2,26 @@ using System.Collections.Generic;
 
 namespace Forte.ContentfulSchema.Discovery
 {
-    public class ContentTree
+    public class ContentTree : IContentTree
     {
-        private readonly IReadOnlyDictionary<string, ContentNode> _contentNodes;
+        private readonly IReadOnlyDictionary<string, IContentNode> _contentNodes;
 
-        public ContentTree(IEnumerable<ContentNode> roots)
+        public ContentTree(IEnumerable<IContentNode> roots)
         {
-            Roots = new List<ContentNode>(roots);
+            Roots = new List<IContentNode>(roots);
             _contentNodes = BuildContentDictionary(roots);
         }
 
-        public IReadOnlyList<ContentNode> Roots { get; }
+        public IReadOnlyList<IContentNode> Roots { get; }
 
-        public ContentNode GetNodeByContentTypeId(string contentTypeId)
+        public IContentNode GetNodeByContentTypeId(string contentTypeId)
         {
             return _contentNodes[contentTypeId];
         }
 
-        private static Dictionary<string, ContentNode> BuildContentDictionary(IEnumerable<ContentNode> roots)
+        private static Dictionary<string, IContentNode> BuildContentDictionary(IEnumerable<IContentNode> roots)
         {
-            var contentNodes = new Dictionary<string, ContentNode>();
+            var contentNodes = new Dictionary<string, IContentNode>();
             foreach (var root in roots)
             {
                 contentNodes.Add(root.ContentTypeId, root);

@@ -23,10 +23,10 @@ namespace Forte.ContentfulSchema.Discovery
         {
             var rootContentTypes = FindRootContentTypes();
             
-            foreach (var rootType in rootContentTypes)
-            {
-                BuildBranch(rootType);
-            }
+            //foreach (var rootType in rootContentTypes)
+            //{
+            //    GetChildren(rootType);
+            //}
 
             return new ContentTree(rootContentTypes);
         }
@@ -38,18 +38,21 @@ namespace Forte.ContentfulSchema.Discovery
                 ContentTypeAttribute contentTypeAttribute = GetContentTypeAttribute(type);
                 if (GetContentTypeAttribute(type.BaseType) == null)
                 {
-                    yield return new ContentNode
+                    var root = new ContentNode
                     {
                         ClrType = type,
                         ContentTypeId = contentTypeAttribute.ContentTypeId
                     };
+                    root.Children = GetChildren(root);
+                    yield return root;
                 }
             }
         }
 
-        private void BuildBranch(ContentNode node)
+        private List<ContentNode> GetChildren(ContentNode node)
         {
             var childrenTypes = FindChildren(node.ClrType);
+            var childrenNodes = new List<ContentNode>();
             foreach (var childType in childrenTypes)
             {
                 ContentTypeAttribute contentTypeAttribute = GetContentTypeAttribute(childType);
@@ -57,12 +60,14 @@ namespace Forte.ContentfulSchema.Discovery
                 {
                     Parent = node,
                     ClrType = childType,
-                    ContentTypeId = contentTypeAttribute.ContentTypeId
+                    ContentTypeId = contentTypeAttribute.ContentTypeId,
                 };
 
-                BuildBranch(childNode);
-                node.Children.Add(childNode);
+                childNode.Children = GetChildren(childNode);
+                childrenNodes.Add(childNode);
             }
+
+            return childrenNodes;
         }
 
         private static ContentTypeAttribute GetContentTypeAttribute(Type type)

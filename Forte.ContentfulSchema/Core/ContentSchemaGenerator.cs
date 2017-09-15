@@ -12,6 +12,7 @@ namespace Forte.ContentfulSchema.Core
     {
         private readonly IContentFieldTypeProvider _contentFieldTypeProvider;
         private readonly IContentEditorControlProvider _contentEditorControlProvider;
+        private ContentFieldValidationProvider _contentFieldValidationProvider;
 
         public ContentSchemaGenerator(
             IContentFieldTypeProvider contentFieldTypeProvider,
@@ -23,6 +24,7 @@ namespace Forte.ContentfulSchema.Core
 
         public IList<ContentSchema> GenerateContentSchema(ContentTree contentTree)
         {
+            _contentFieldValidationProvider = new ContentFieldValidationProvider(contentTree);
             var inferedContentTypes = new List<ContentSchema>();
 
             foreach (var root in contentTree.Roots)
@@ -33,7 +35,7 @@ namespace Forte.ContentfulSchema.Core
             return inferedContentTypes;
         }
 
-        private IList<ContentSchema> BuildTypesForBranch(ContentNode node)
+        private IList<ContentSchema> BuildTypesForBranch(IContentNode node)
         {
             var types = new List<ContentSchema>();
 
@@ -46,7 +48,7 @@ namespace Forte.ContentfulSchema.Core
             return types;
         }
 
-        private ContentSchema BuildContentType(ContentNode node)
+        private ContentSchema BuildContentType(IContentNode node)
         {
             var fieldBuilder = new ContentFieldBuilder(_contentFieldTypeProvider);
             var fieldEditorBuilder = new ContentFieldEditorBuilder(_contentEditorControlProvider);
@@ -71,8 +73,7 @@ namespace Forte.ContentfulSchema.Core
             foreach (var property in inferedProperties)
             {
                 var field = fieldBuilder.BuildContentField(property);
-                //field.Validations = new List<IFieldValidator>() { new LinkContentTypeValidator(node.GetAllDescedants().Select(x => x.ContentTypeId)) };
-
+                field.Validations = _contentFieldValidationProvider.GetValidators(property, field);
 
                 contentType.Fields.Add(field);
                 editorInterface.Controls.Add(fieldEditorBuilder.GetEditorControl(property, field));
