@@ -21,31 +21,29 @@ namespace Forte.ContentfulSchema.Discovery
 
         public ContentTree DiscoverContentStructure()
         {
-            var contentTree = new ContentTree();
-            FindRootContentTypes(contentTree);
-
-            foreach (var rootType in contentTree.Roots)
+            var rootContentTypes = FindRootContentTypes();
+            
+            foreach (var rootType in rootContentTypes)
             {
                 BuildBranch(rootType);
             }
 
-            return contentTree;
+            return new ContentTree(rootContentTypes);
         }
 
-        private void FindRootContentTypes(ContentTree contentTree)
+        private IEnumerable<ContentNode> FindRootContentTypes()
         {
             foreach (var type in _availableContentTypes)
             {
                 ContentTypeAttribute contentTypeAttribute = GetContentTypeAttribute(type);
                 if (GetContentTypeAttribute(type.BaseType) == null)
                 {
-                    contentTree.Roots.Add(new ContentNode
+                    yield return new ContentNode
                     {
                         ClrType = type,
                         ContentTypeId = contentTypeAttribute.ContentTypeId
-                    });
+                    };
                 }
-
             }
         }
 

@@ -1,5 +1,6 @@
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
+using Forte.ContentfulSchema.Attributes;
 using Forte.ContentfulSchema.Core;
 using Moq;
 using System.Collections.Generic;
@@ -68,15 +69,19 @@ namespace Forte.ContentfulSchema.Tests.Core
             new object [] { typeof(TestContent).GetProperty(nameof(TestContent.AssetArray)), SystemFieldTypes.Link },
         };
 
+        [ContentType("test-content")]
         private class TestContent
         {
             public string SampleText { get; set; }
-            public Entry<string> EntryProp { get; set; }
+            public Entry<TestSectionContent> EntryProp { get; set; }
             public Asset AssetProp { get; set; }
 
             public IEnumerable<string> StringArray { get; set; }
             public IEnumerable<Entry<string>> EntryArray { get; set; }
             public IEnumerable<Asset> AssetArray { get; set; }
         }
+
+        [ContentType("test-section")]
+        private class TestSectionContent { }
     }
 }

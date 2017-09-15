@@ -1,6 +1,7 @@
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.ContentTypes;
+using Forte.ContentfulSchema.Discovery;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

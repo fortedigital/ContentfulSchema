@@ -71,6 +71,9 @@ namespace Forte.ContentfulSchema.Core
             foreach (var property in inferedProperties)
             {
                 var field = fieldBuilder.BuildContentField(property);
+                //field.Validations = new List<IFieldValidator>() { new LinkContentTypeValidator(node.GetAllDescedants().Select(x => x.ContentTypeId)) };
+
+
                 contentType.Fields.Add(field);
                 editorInterface.Controls.Add(fieldEditorBuilder.GetEditorControl(property, field));
             }

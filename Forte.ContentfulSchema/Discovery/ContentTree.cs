@@ -1,29 +1,37 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Forte.ContentfulSchema.Discovery
 {
     public class ContentTree
     {
-        public IList<ContentNode> Roots { get; } = new List<ContentNode>();
+        private readonly IReadOnlyDictionary<string, ContentNode> _contentNodes;
 
-        //public IEnumerable<ContentNode> GetAll()
-        //{
-        //    foreach (var root in Roots)
-        //    {
+        public ContentTree(IEnumerable<ContentNode> roots)
+        {
+            Roots = new List<ContentNode>(roots);
+            _contentNodes = BuildContentDictionary(roots);
+        }
 
-        //    }
-        //}
+        public IReadOnlyList<ContentNode> Roots { get; }
 
-        //private IEnumerable<ContentNode> GetAllChildren(ContentNode parent)
-        //{
-        //    var allChildren = new List<ContentNode>();
+        public ContentNode GetNodeByContentTypeId(string contentTypeId)
+        {
+            return _contentNodes[contentTypeId];
+        }
 
-        //    foreach (var child in parent.Children)
-        //    {
-        //        allChildren.
-        //    }
-        //}
+        private static Dictionary<string, ContentNode> BuildContentDictionary(IEnumerable<ContentNode> roots)
+        {
+            var contentNodes = new Dictionary<string, ContentNode>();
+            foreach (var root in roots)
+            {
+                contentNodes.Add(root.ContentTypeId, root);
+                foreach (var descedant in root.GetAllDescedants())
+                {
+                    contentNodes.Add(descedant.ContentTypeId, descedant);
+                }
+            }
+
+            return contentNodes;
+        }
     }
 }
