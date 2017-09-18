@@ -22,7 +22,7 @@ namespace Forte.ContentfulSchema.Core
             _contentEditorControlProvider = contentEditorControlProvider;
         }
 
-        public IList<ContentSchema> GenerateContentSchema(ContentTree contentTree)
+        public IList<ContentSchema> GenerateContentSchema(IContentTree contentTree)
         {
             _contentFieldValidationProvider = new ContentFieldValidationProvider(contentTree);
             var inferedContentTypes = new List<ContentSchema>();

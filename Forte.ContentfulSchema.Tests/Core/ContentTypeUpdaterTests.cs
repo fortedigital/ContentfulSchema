@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models;
-using Forte.ContentfulSchema.Attributes;
 using Forte.ContentfulSchema.Core;
 using Moq;
 using Xunit;
@@ -12,33 +11,18 @@ namespace Forte.ContentfulSchema.Tests
 {
     public class ContentTypeUpdaterTests
     {
+        private const string _sampleContentTypeId = "sample-type-id";
         private readonly Mock<IContentfulManagementClient> _contentfulManagementClientMock;
         private readonly Mock<IEqualityComparer<ContentType>> _contentTypeComparerMock;
-        private readonly InferedContentType _inferedContentType;
+        private readonly ContentType _sampleInferedContentType;
 
         public ContentTypeUpdaterTests()
         {
             _contentfulManagementClientMock = new Mock<IContentfulManagementClient>();
             _contentTypeComparerMock = new Mock<IEqualityComparer<ContentType>>();
-
-            // TODO Should be removed after migrating to ContentType
-            _inferedContentType = new InferedContentType
+            _sampleInferedContentType = new ContentType
             {
-                ContentTypeId = "sample-content-type",
-                Type = typeof(SampleContentType),
-                Fields = new[]
-                {
-                    new InferedContentTypeField
-                    {
-                        FieldId = "Field1",
-                        Property = typeof(SampleContentType).GetProperty(nameof(SampleContentType.Title))
-                    },
-                    new InferedContentTypeField
-                    {
-                        FieldId = "Field2",
-                        Property = typeof(SampleContentType).GetProperty(nameof(SampleContentType.Age))
-                    },
-                }
+                SystemProperties = new SystemProperties { Id = _sampleContentTypeId}
             };
 
             _contentfulManagementClientMock.Setup(
@@ -56,7 +40,8 @@ namespace Forte.ContentfulSchema.Tests
         {
             var updater = new ContentTypeUpdater(
                 _contentfulManagementClientMock.Object, _contentTypeComparerMock.Object);
-            await updater.SyncContentTypes(_inferedContentType.ConvertToContentType(), null);
+
+            await updater.SyncContentTypes(_sampleInferedContentType, null);
 
             _contentfulManagementClientMock.Verify(m =>
                 m.CreateOrUpdateContentTypeAsync(It.IsAny<ContentType>(), It.IsAny<string>(),
@@ -68,19 +53,17 @@ namespace Forte.ContentfulSchema.Tests
         {
             var updater = new ContentTypeUpdater(
                 _contentfulManagementClientMock.Object, _contentTypeComparerMock.Object);
-            await updater.SyncContentTypes(_inferedContentType.ConvertToContentType(),
-                new ContentType {SystemProperties = new SystemProperties() {Version = 999}});
+
+            var sampleExistingType = new ContentType
+            {
+                SystemProperties = new SystemProperties() { Id = _sampleContentTypeId, Version = 999 }
+            };
+
+            await updater.SyncContentTypes(_sampleInferedContentType, sampleExistingType);
 
             _contentfulManagementClientMock.Verify(m =>
                 m.CreateOrUpdateContentTypeAsync(It.IsAny<ContentType>(), It.IsAny<string>(),
                     999, It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [ContentType("sample-content-type")]
-        private class SampleContentType
-        {
-            public string Title { get; set; }
-            public int Age { get; set; }
         }
     }
 }

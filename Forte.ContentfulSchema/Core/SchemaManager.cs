@@ -40,42 +40,14 @@ namespace Forte.ContentfulSchema.Core
             }
 
         }
-        
-        [Obsolete]
-        public async Task MergeSchema(IEnumerable<InferedContentType> inferedTypes, IEnumerable<ContentType> existingTypes)
-        {
-            var matchedTypes = MatchTypes(inferedTypes, existingTypes);
 
-            foreach (var syncItem in matchedTypes)
-            {
-                try
-                {
-                    await _contentTypeUpdater.SyncContentTypes(syncItem.Infered.ConvertToContentType(), syncItem.Existing);
-                    await _editorInterfaceUpdater.UpdateEditorInterface(syncItem.Infered);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception($"Failed to update content type: {syncItem.Infered.ContentTypeId}.", e);
-                }
-            }            
-        }
-
-         private IEnumerable<(ContentSchema InferedType, ContentType ExistingType)> MatchContentTypes(
-             IEnumerable<ContentSchema> inferedDefinitions, IEnumerable<ContentType> existingDefinitions)
+        private IEnumerable<(ContentSchema InferedType, ContentType ExistingType)> MatchContentTypes(
+            IEnumerable<ContentSchema> inferedDefinitions, IEnumerable<ContentType> existingDefinitions)
         {
             return inferedDefinitions.GroupJoin(existingDefinitions,
                 infered => infered.ContentType.SystemProperties.Id,
                 existing => existing.SystemProperties.Id,
                 (i, e) => (InferedType: i, ExistingType: e.SingleOrDefault()));
-        }
-
-        [Obsolete]
-        private IEnumerable<(InferedContentType Infered, ContentType Existing)> MatchTypes(
-            IEnumerable<InferedContentType> inferedTypes, IEnumerable<ContentType> existingTypes)
-        {
-            return inferedTypes.GroupJoin(existingTypes, t => t.ContentTypeId,
-                t => t.SystemProperties.Id, 
-                (i, e) => (Infered: i, Existing: e.SingleOrDefault()));
         }
     }
 }
