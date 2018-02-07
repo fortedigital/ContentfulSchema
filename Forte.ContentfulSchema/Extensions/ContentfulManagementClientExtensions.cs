@@ -14,7 +14,7 @@ namespace Forte.ContentfulSchema.Extensions
 
             var inferedContentTypes = schemaGenerator.GenerateSchema(typeof(TApp).GetTypeInfo().Assembly.GetTypes());
 
-            var existingContentTypes = await client.GetContentTypesAsync();
+            var existingContentTypes = await client.GetContentTypes();
             await schemaMerger.MergeSchema(inferedContentTypes, existingContentTypes);
         }
     }

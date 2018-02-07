@@ -22,15 +22,15 @@ namespace Forte.ContentfulSchema.Core
         {
             if (existingContentType == null)
             {
-                inferedContentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(inferedContentType);
-                await _contentfulManagementClient.ActivateContentTypeAsync(inferedContentType.SystemProperties.Id,
+                inferedContentType = await _contentfulManagementClient.CreateOrUpdateContentType(inferedContentType);
+                await _contentfulManagementClient.ActivateContentType(inferedContentType.SystemProperties.Id,
                     inferedContentType.SystemProperties.Version.Value);
             }
             else if (_contentTypeComparer.Equals(inferedContentType, existingContentType) == false)
             {
-                inferedContentType = await _contentfulManagementClient.CreateOrUpdateContentTypeAsync(inferedContentType,
+                inferedContentType = await _contentfulManagementClient.CreateOrUpdateContentType(inferedContentType,
                     version: existingContentType?.SystemProperties.Version);
-                await _contentfulManagementClient.ActivateContentTypeAsync(inferedContentType.SystemProperties.Id,
+                await _contentfulManagementClient.ActivateContentType(inferedContentType.SystemProperties.Id,
                     inferedContentType.SystemProperties.Version.Value);
             }
 

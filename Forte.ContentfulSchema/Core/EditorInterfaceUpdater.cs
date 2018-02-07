@@ -18,7 +18,7 @@ namespace Forte.ContentfulSchema.Core
 
         public async Task UpdateEditorInterface(InferedContentType inferedContentType)
         {
-            var editorInterface = await _contentfulManagementClient.GetEditorInterfaceAsync(inferedContentType.ContentTypeId);
+            var editorInterface = await _contentfulManagementClient.GetEditorInterface(inferedContentType.ContentTypeId);
             var controlsWithFields = GetControlsWithFields(inferedContentType, editorInterface);
             
             bool editorInterfaceUpdated = false;
@@ -40,7 +40,7 @@ namespace Forte.ContentfulSchema.Core
 
             if (editorInterfaceUpdated)
             {
-                editorInterface = await _contentfulManagementClient.UpdateEditorInterfaceAsync(editorInterface,
+                editorInterface = await _contentfulManagementClient.UpdateEditorInterface(editorInterface,
                     inferedContentType.ContentTypeId, editorInterface.SystemProperties.Version.Value);
             }
         }

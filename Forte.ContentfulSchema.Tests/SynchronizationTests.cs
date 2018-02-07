@@ -20,16 +20,16 @@ namespace Forte.ContentfulSchema.Tests
         {
             _managementClientMock = new Mock<IContentfulManagementClient>();
             _managementClientMock
-                .Setup(c => c.GetContentTypesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.GetContentTypes(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Enumerable.Empty<ContentType>());
 
             _managementClientMock
-                .Setup(m => m.CreateOrUpdateContentTypeAsync(It.IsAny<ContentType>(), It.IsAny<string>(),
+                .Setup(m => m.CreateOrUpdateContentType(It.IsAny<ContentType>(), It.IsAny<string>(),
                     It.IsAny<int?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ContentType() {SystemProperties = new SystemProperties() {Id = "150", Version = 1}});
 
             _managementClientMock
-                .Setup(m => m.GetEditorInterfaceAsync(It.IsAny<string>(), It.IsAny<string>(),
+                .Setup(m => m.GetEditorInterface(It.IsAny<string>(), It.IsAny<string>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new EditorInterface() {Controls = new List<EditorInterfaceControl>()});
         }
@@ -39,12 +39,12 @@ namespace Forte.ContentfulSchema.Tests
         {
             await _managementClientMock.Object.SyncContentTypes<SychronizationTests>();
 
-            _managementClientMock.Verify(m => m.GetContentTypesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            _managementClientMock.Verify(m => m.GetContentTypes(It.IsAny<string>(), It.IsAny<CancellationToken>()),
                 Times.Once());
 
             _managementClientMock
                 .Verify(
-                    m => m.GetEditorInterfaceAsync(It.IsAny<string>(), It.IsAny<string>(),
+                    m => m.GetEditorInterface(It.IsAny<string>(), It.IsAny<string>(),
                         It.IsAny<CancellationToken>()),
                     Times.Exactly(5));
         }

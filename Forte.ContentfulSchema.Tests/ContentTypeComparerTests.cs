@@ -3,7 +3,9 @@ using Forte.ContentfulSchema.Core;
 using Moq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Reflection;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Forte.ContentfulSchema.Tests
 {
@@ -18,7 +20,7 @@ namespace Forte.ContentfulSchema.Tests
 
         [Theory]
         [MemberData(nameof(DifferentContentTypes))]
-        public void ShouldReturnFalseWhenObjetsPropertiesAreDifferent((ContentType First, ContentType Second) pair)
+        public void ShouldReturnFalseWhenObjetsPropertiesAreDifferent(ContentPair pair)
         {
             Assert.False(_comparer.Equals(pair.First, pair.Second),
                 $"Comparing objects: {pair.PrettyPrint()}");
@@ -26,7 +28,7 @@ namespace Forte.ContentfulSchema.Tests
 
         [Theory]
         [MemberData(nameof(SameContentTypes))]
-        public void ShouldReturnTrueWhenObjectsPropertiesAreEqual((ContentType First, ContentType Second) pair)
+        public void ShouldReturnTrueWhenObjectsPropertiesAreEqual(ContentPair pair)
         {
             Assert.True(_comparer.Equals(pair.First, pair.Second),
                 $"Comparing objects: {pair.PrettyPrint()}");
@@ -39,12 +41,12 @@ namespace Forte.ContentfulSchema.Tests
         {
             var fieldComparer = new Mock<IEqualityComparer<Field>>();
             fieldComparer.Setup(m => m.Equals(It.IsAny<Field>(), It.IsAny<Field>()))
-                         .Returns(areEqual);
+                .Returns(areEqual);
 
             var customComparer = new ContentTypeComparer(fieldComparer.Object);
 
-            var firstContentType = ContentTypeBuilder.New.WithFields(new Field { Id = "1" }).Build();
-            var secondContentType = ContentTypeBuilder.New.WithFields(new Field { Id = "1" }).Build();
+            var firstContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
+            var secondContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
 
             var result = customComparer.Equals(firstContentType, secondContentType);
 
@@ -58,57 +60,111 @@ namespace Forte.ContentfulSchema.Tests
                 return new[]
                 {
                     new object[]
-                    {(
-                        First: ContentTypeBuilder.New.WithId("123").Build(),
-                        Second: ContentTypeBuilder.New.WithId("321").Build()
-                    )},
+                    {
+                        new ContentPair
+                        {
+                            First = ContentTypeBuilder.New.WithId("123").Build(),
+                            Second = ContentTypeBuilder.New.WithId("321").Build()
+                        }
+                    },
                     new object[]
-                    {(
-                        First: ContentTypeBuilder.New.WithDescription("First description").Build(),
-                        Second: ContentTypeBuilder.New.WithDescription("Second description").Build()
-                    )},
+                    {
+                        new ContentPair
+                        {
+                            First = ContentTypeBuilder.New.WithDescription("First description").Build(),
+                            Second = ContentTypeBuilder.New.WithDescription("Second description").Build()
+                        }
+                    },
                     new object[]
-                    {(
-                        First: ContentTypeBuilder.New.WithDisplayField("First display").Build(),
-                        Second: ContentTypeBuilder.New.WithDisplayField("Second display").Build()
-                    )},
+                    {
+                        new ContentPair
+                        {
+                            First = ContentTypeBuilder.New.WithDisplayField("First display").Build(),
+                            Second = ContentTypeBuilder.New.WithDisplayField("Second display").Build()
+                        }
+                    },
                     new object[]
-                    {(
-                        First: ContentTypeBuilder.New.WithName("First name").Build(),
-                        Second: ContentTypeBuilder.New.WithName("Second name").Build()
-                    )},
+                    {
+                        new ContentPair
+                        {
+                            First = ContentTypeBuilder.New.WithName("First name").Build(),
+                            Second = ContentTypeBuilder.New.WithName("Second name").Build()
+                        }
+                    },
                 };
             }
         }
 
         public static IEnumerable<object[]> SameContentTypes => new[]
         {
-            new object []
-            {(
-                First: ContentTypeBuilder.New.WithId("123").Build(),
-                Second: ContentTypeBuilder.New.WithId("123").Build()
-            )},
             new object[]
-            {(
-                First: ContentTypeBuilder.New.WithDescription("Description").Build(),
-                Second: ContentTypeBuilder.New.WithDescription("Description").Build()
-            )},
+            {
+                new ContentPair
+                {
+                    First = ContentTypeBuilder.New.WithId("123").Build(),
+                    Second = ContentTypeBuilder.New.WithId("123").Build()
+                }
+            },
             new object[]
-            {(
-                First: ContentTypeBuilder.New.WithDisplayField("Display").Build(),
-                Second: ContentTypeBuilder.New.WithDisplayField("Display").Build()
-            )},
+            {
+                new ContentPair
+                {
+                    First = ContentTypeBuilder.New.WithDescription("Description").Build(),
+                    Second = ContentTypeBuilder.New.WithDescription("Description").Build()
+                }
+            },
             new object[]
-            {(
-                First: ContentTypeBuilder.New.WithName("Name").Build(),
-                Second: ContentTypeBuilder.New.WithName("Name").Build()
-            )},
+            {
+                new ContentPair
+                {
+                    First = ContentTypeBuilder.New.WithDisplayField("Display").Build(),
+                    Second = ContentTypeBuilder.New.WithDisplayField("Display").Build()
+                }
+            },
+            new object[]
+            {
+                new ContentPair
+                {
+                    First = ContentTypeBuilder.New.WithName("Name").Build(),
+                    Second = ContentTypeBuilder.New.WithName("Name").Build()
+                }
+            },
         };
+    }
+
+    public class ContentPair : IXunitSerializable
+    {
+        public ContentType First { get; set; }
+
+        public ContentType Second { get; set; }
+
+        public string PrettyPrint()
+        {
+            return JsonConvert.SerializeObject((First: First, Second: Second), Formatting.Indented);
+        }
+
+        public void Deserialize(IXunitSerializationInfo info)
+        {
+            var jsonFirst = info.GetValue<string>("first");
+            First = JsonConvert.DeserializeObject<ContentType>(jsonFirst);
+
+            var jsonSecond = info.GetValue<string>("second");
+            Second = JsonConvert.DeserializeObject<ContentType>(jsonSecond);
+        }
+
+        public void Serialize(IXunitSerializationInfo info)
+        {
+            var jsonFirst = JsonConvert.SerializeObject(First);
+            info.AddValue("first", jsonFirst, typeof(string));
+
+            var jsonSecond = JsonConvert.SerializeObject(Second);
+            info.AddValue("second", jsonSecond, typeof(string));
+        }
     }
 
     internal class ContentTypeBuilder
     {
-        private ContentType _currentBuild;
+        private readonly ContentType _currentBuild;
 
         private ContentTypeBuilder()
         {
@@ -122,10 +178,7 @@ namespace Forte.ContentfulSchema.Tests
             };
         }
 
-        public static ContentTypeBuilder New
-        {
-            get => new ContentTypeBuilder();
-        }
+        public static ContentTypeBuilder New => new ContentTypeBuilder();
 
         public ContentTypeBuilder WithId(string id)
         {
@@ -159,23 +212,16 @@ namespace Forte.ContentfulSchema.Tests
 
         public ContentType Build()
         {
-            return new ContentType
+            var contentType = new ContentType
             {
-                SystemProperties = new SystemProperties { Id = _currentBuild.SystemProperties.Id },
+                SystemProperties = new SystemProperties {Id = _currentBuild.SystemProperties.Id},
                 Fields = new List<Field>(_currentBuild.Fields),
                 Description = string.Copy(_currentBuild.Description),
                 DisplayField = string.Copy(_currentBuild.DisplayField),
                 Name = string.Copy(_currentBuild.Name)
             };
-        }
-    }
 
-    // TODO create util and merge with FieldTupleExtension
-    internal static class ContentTypeTupleExtension
-    {
-        internal static string PrettyPrint(this (ContentType First, ContentType Second) pair)
-        {
-            return JsonConvert.SerializeObject(pair, Formatting.Indented);
+            return contentType;
         }
     }
 }
