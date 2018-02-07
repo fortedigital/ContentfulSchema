@@ -22,7 +22,7 @@ namespace Forte.ContentfulSchema.Core
 
         public async Task UpdateSchema(IEnumerable<ContentSchema> inferedDefinitions)
         {
-            var existingContentTypes = await _contentfulManagementClient.GetContentTypesAsync();
+            var existingContentTypes = await _contentfulManagementClient.GetContentTypes();
             var matchedTypes = MatchContentTypes(inferedDefinitions, existingContentTypes);
 
             foreach (var syncItem in matchedTypes)

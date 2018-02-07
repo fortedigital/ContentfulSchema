@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Contentful.Core.Models.Management;
 using Newtonsoft.Json;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Forte.ContentfulSchema.Tests
 {
@@ -18,107 +19,308 @@ namespace Forte.ContentfulSchema.Tests
 
         [Theory]
         [MemberData(nameof(GetDifferentObjects))]
-        public void ShouldReturnFalseForDifferentObjects((Field first, Field second) pair)
+        public void ShouldReturnFalseForDifferentObjects(FieldPair pair)
         {
-            Assert.False(_fieldComparer.Equals(pair.first, pair.second),
+            Assert.False(_fieldComparer.Equals(pair.First, pair.Second),
                 $"Comparing objects: {pair.PrettyPrint()}");
         }
 
         [Theory]
         [MemberData(nameof(GetSameObjects))]
-        public void ShouldReturnTrueForSameObjects((Field first, Field second) pair)
+        public void ShouldReturnTrueForSameObjects(FieldPair pair)
         {
-            Assert.True(_fieldComparer.Equals(pair.first, pair.second),
+            Assert.True(_fieldComparer.Equals(pair.First, pair.Second),
                 $"Comparing objects: {pair.PrettyPrint()}");
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public static IEnumerable<object[]> GetDifferentObjects => new[]
+        public static IEnumerable<object[]> GetDifferentObjects()
         {
-            new object[] {(first: new Field {Id = "1"}, second: new Field {Id = "2"})},
-            new object[] {(first: new Field {Name = "First"}, second: new Field {Name = "Second"})},
-            new object[] {(first: new Field {Disabled = true}, second: new Field {Disabled = false})},
-            new object[] {(first: new Field {LinkType = "Link One"}, second: new Field {LinkType = "Link Two"})},
-            new object[] {(first: new Field {Localized = true}, second: new Field {Localized = false})},
-            new object[] {(first: new Field {Omitted = true}, second: new Field {Omitted = false})},
-            new object[] {(first: new Field {Required = true}, second: new Field {Required = false})},
-            new object[] {(first: new Field {Type = "Type One"}, second: new Field {Type = "Type Two"})},
-            new object[]
-            {
-                (
-                first: new Field {Items = new Schema { LinkType = "Schema Link One"}},
-                second: new Field {Items = new Schema { LinkType = "Schema Link Two"}}
-                )
-            },
-            new object[]
-            {
-                (
-                first: new Field {Items = new Schema { Type = "Schema Type One"}},
-                second: new Field {Items = new Schema { Type = "Schema Type Two"}}
-                )
-            },
-            new object[]
-            {
-                (
-                first: new Field {Items = new Schema { Validations = new List<IFieldValidator> {new UniqueValidator() }}},
-                second: new Field {Items = new Schema { Validations = new List<IFieldValidator> { new UniqueValidator() }}}
-                )
-            },
-            new object[]
-            {
-                (
-                first: new Field {Items = new Schema { Validations = new List<IFieldValidator> {new RangeValidator(5, 10)} }},
-                second: new Field {Items = new Schema { Validations = new List<IFieldValidator> { new UniqueValidator() }}}
-                )
-            },
-            new object[]
-            {
-                (
-                first: new Field {Items = new Schema { Validations = new List<IFieldValidator> {new RangeValidator(5, 10)} }},
-                second: new Field {Items = new Schema { Validations = new List<IFieldValidator> {}}}
-                )
-            },
-        };
+            int testDataId = 0;
 
-        public static IEnumerable<object[]> GetSameObjects => new[]
+            int getDataId()
+            {
+                return testDataId++;
+            }
+
+            yield return new object[]
+            {
+                new FieldPair(getDataId(), "Compare Id property")
+                {
+                    First = new Field {Id = "1"},
+                    Second = new Field {Id = "2"},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId(), "Compare name property")
+                {
+                    First = new Field {Name = "First"},
+                    Second = new Field {Name = "Second"},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId(), "Compare disabled property")
+                {
+                    First = new Field {Disabled = true},
+                    Second = new Field {Disabled = false},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {LinkType = "Link One"},
+                    Second = new Field {LinkType = "Link Two"},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Localized = true},
+                    Second = new Field {Localized = false},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Omitted = true},
+                    Second = new Field {Omitted = false},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Required = true},
+                    Second = new Field {Required = false},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Type = "Type One"},
+                    Second = new Field {Type = "Type Two"},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Items = new Schema {LinkType = "Schema Link One"}},
+                    Second = new Field {Items = new Schema {LinkType = "Schema Link Two"}},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Items = new Schema {Type = "Schema Type One"}},
+                    Second = new Field {Items = new Schema {Type = "Schema Type Two"}},
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field
+                    {
+                        Items = new Schema {Validations = new List<IFieldValidator> {new UniqueValidator()}}
+                    },
+                    Second = new Field
+                    {
+                        Items = new Schema {Validations = new List<IFieldValidator> {new UniqueValidator()}}
+                    },
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field
+                    {
+                        Items = new Schema {Validations = new List<IFieldValidator> {new RangeValidator(5, 10)}}
+                    },
+                    Second = new Field
+                    {
+                        Items = new Schema {Validations = new List<IFieldValidator> {new UniqueValidator()}}
+                    },
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field
+                    {
+                        Items = new Schema {Validations = new List<IFieldValidator> {new RangeValidator(5, 10)}}
+                    },
+                    Second = new Field
+                    {
+                        Items = new Schema {Validations = new List<IFieldValidator> { }}
+                    },
+                }
+            };
+        }
+
+        public static IEnumerable<object[]> GetSameObjects()
         {
-            new object[] {(first: new Field {Id = "1"}, second: new Field {Id = "1"})},
-            new object[] {(first: new Field {Name = "Name"}, second: new Field {Name = "Name"})},
-            new object[] {(first: new Field {Disabled = true}, second: new Field {Disabled = true})},
-            new object[] {(first: new Field {LinkType = "LinkType"}, second: new Field {LinkType = "LinkType"})},
-            new object[] {(first: new Field {Localized = true}, second: new Field {Localized = true})},
-            new object[] {(first: new Field {Omitted = true}, second: new Field {Omitted = true})},
-            new object[] {(first: new Field {Required = true}, second: new Field {Required = true})},
-            new object[] {(first: new Field {Type = "FieldType"}, second: new Field {Type = "FieldType"})},
-            new object[]
+            int testDataId = 0;
+
+            int getDataId()
             {
-                (
-                first: new Field {Items = new Schema { LinkType = "SchemaLink"}},
-                second: new Field {Items = new Schema { LinkType = "SchemaLink"}}
-                )
-            },
-            new object[]
+                return testDataId++;
+            }
+
+            yield return new object[]
             {
-                (
-                first: new Field {Items = new Schema { Type = "SchemaType"}},
-                second: new Field {Items = new Schema { Type = "SchemaType"}}
-                )
-            },
-            new object[]
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Id = "1"},
+                    Second = new Field {Id = "1"}
+                }
+            };
+            yield return new object[]
             {
-                (
-                first: new Field {Items = new Schema { Validations = null }},
-                second: new Field {Items = new Schema { Validations = null }}
-                )
-            },
-        };
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Name = "Name"},
+                    Second = new Field {Name = "Name"}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Disabled = true},
+                    Second = new Field {Disabled = true}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {LinkType = "LinkType"},
+                    Second = new Field {LinkType = "LinkType"}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Localized = true},
+                    Second = new Field {Localized = true}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Omitted = true},
+                    Second = new Field {Omitted = true}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Required = true},
+                    Second = new Field {Required = true}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Type = "FieldType"},
+                    Second = new Field {Type = "FieldType"}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Items = new Schema {LinkType = "SchemaLink"}},
+                    Second = new Field {Items = new Schema {LinkType = "SchemaLink"}}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Items = new Schema {Type = "SchemaType"}},
+                    Second = new Field {Items = new Schema {Type = "SchemaType"}}
+                }
+            };
+            yield return new object[]
+            {
+                new FieldPair(getDataId())
+                {
+                    First = new Field {Items = new Schema {Validations = null}},
+                    Second = new Field {Items = new Schema {Validations = null}}
+                }
+            };
+        }
     }
 
-    internal static class FieldTupleExtensions
+    public class FieldPair : IXunitSerializable
     {
-        internal static string PrettyPrint(this (Field first, Field second) pair)
+        public Field First { get; set; }
+
+        public Field Second { get; set; }
+
+        private int TestDataId { get; set; }
+
+        private string description;
+
+        public FieldPair()
         {
-            return JsonConvert.SerializeObject(pair, Formatting.Indented);
+        }
+
+        public FieldPair(int testDataId, string description = null)
+        {
+            TestDataId = testDataId;
+            this.description = description;
+        }
+
+        public void Deserialize(IXunitSerializationInfo info)
+        {
+            var jsonFirst = info.GetValue<string>("first");
+            First = JsonConvert.DeserializeObject<Field>(jsonFirst);
+
+            var jsonSecond = info.GetValue<string>("second");
+            Second = JsonConvert.DeserializeObject<Field>(jsonSecond);
+
+
+            TestDataId = info.GetValue<int>("TestDataId");
+            description = info.GetValue<string>(nameof(description));
+        }
+
+        public void Serialize(IXunitSerializationInfo info)
+        {
+            var jsonFirst = JsonConvert.SerializeObject(First);
+            info.AddValue("first", jsonFirst, typeof(string));
+
+            var jsonSecond = JsonConvert.SerializeObject(Second);
+            info.AddValue("second", jsonSecond, typeof(string));
+
+            info.AddValue("TestDataId", TestDataId, typeof(int));
+
+            info.AddValue(nameof(description), description, typeof(string));
+        }
+
+        public string PrettyPrint()
+        {
+            return JsonConvert.SerializeObject((First: First, Second: Second), Formatting.Indented);
+        }
+
+        public override string ToString()
+        {
+            return $"Id: {TestDataId}. {description}";
         }
     }
 }

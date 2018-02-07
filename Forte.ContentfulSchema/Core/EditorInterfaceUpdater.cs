@@ -17,7 +17,7 @@ namespace Forte.ContentfulSchema.Core
 
         public async Task SyncEditorInterface(ContentSchema contentSchema)
         {
-            var existingEditorInterface = await _contentfulManagementClient.GetEditorInterfaceAsync(contentSchema.ContentType.SystemProperties.Id);
+            var existingEditorInterface = await _contentfulManagementClient.GetEditorInterface(contentSchema.ContentType.SystemProperties.Id);
 
             var matchedInterfaceControls = MatchEditorControls(contentSchema.EditorInterface, existingEditorInterface);
 
@@ -33,7 +33,7 @@ namespace Forte.ContentfulSchema.Core
 
             if (editorInterfaceUpdated)
             {
-                existingEditorInterface = await _contentfulManagementClient.UpdateEditorInterfaceAsync(
+                existingEditorInterface = await _contentfulManagementClient.UpdateEditorInterface(
                     existingEditorInterface,
                     contentSchema.ContentType.SystemProperties.Id, 
                     existingEditorInterface.SystemProperties.Version.Value);

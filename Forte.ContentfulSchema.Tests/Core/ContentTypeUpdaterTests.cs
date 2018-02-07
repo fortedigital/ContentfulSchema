@@ -26,7 +26,7 @@ namespace Forte.ContentfulSchema.Tests
             };
 
             _contentfulManagementClientMock.Setup(
-                    m => m.CreateOrUpdateContentTypeAsync(It.IsAny<ContentType>(), It.IsAny<string>(), It.IsAny<int?>(),
+                    m => m.CreateOrUpdateContentType(It.IsAny<ContentType>(), It.IsAny<string>(), It.IsAny<int?>(),
                         It.IsAny<CancellationToken>()))
                 .ReturnsAsync((ContentType ct, string spaceId, int? version, CancellationToken token) =>
                 {
@@ -44,7 +44,7 @@ namespace Forte.ContentfulSchema.Tests
             await updater.SyncContentTypes(_sampleInferedContentType, null);
 
             _contentfulManagementClientMock.Verify(m =>
-                m.CreateOrUpdateContentTypeAsync(It.IsAny<ContentType>(), It.IsAny<string>(),
+                m.CreateOrUpdateContentType(It.IsAny<ContentType>(), It.IsAny<string>(),
                     null, It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -62,7 +62,7 @@ namespace Forte.ContentfulSchema.Tests
             await updater.SyncContentTypes(_sampleInferedContentType, sampleExistingType);
 
             _contentfulManagementClientMock.Verify(m =>
-                m.CreateOrUpdateContentTypeAsync(It.IsAny<ContentType>(), It.IsAny<string>(),
+                m.CreateOrUpdateContentType(It.IsAny<ContentType>(), It.IsAny<string>(),
                     999, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
