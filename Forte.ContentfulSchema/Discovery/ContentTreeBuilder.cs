@@ -22,11 +22,6 @@ namespace Forte.ContentfulSchema.Discovery
         public ContentTree DiscoverContentStructure()
         {
             var rootContentTypes = FindRootContentTypes();
-            
-            //foreach (var rootType in rootContentTypes)
-            //{
-            //    GetChildren(rootType);
-            //}
 
             return new ContentTree(rootContentTypes);
         }

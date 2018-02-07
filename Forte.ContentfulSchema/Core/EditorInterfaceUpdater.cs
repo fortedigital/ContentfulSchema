@@ -24,7 +24,7 @@ namespace Forte.ContentfulSchema.Core
             bool editorInterfaceUpdated = false;
             foreach (var controlToSync in matchedInterfaceControls)
             {
-                if (controlToSync.InferedControl.WidgetId != controlToSync.ExistingControl.WidgetId)
+                if (IsUpdateAvailable(controlToSync.InferedControl, controlToSync.ExistingControl))
                 {
                     controlToSync.ExistingControl.WidgetId = controlToSync.InferedControl.WidgetId;
                     editorInterfaceUpdated = true;
@@ -47,6 +47,11 @@ namespace Forte.ContentfulSchema.Core
                 infered => infered.FieldId,
                 existing => existing.FieldId,
                 (i, e) => (InferedControl: i, ExistingControl: e));
+        }
+
+        private static bool IsUpdateAvailable(EditorInterfaceControl infered, EditorInterfaceControl existing)
+        {
+            return !string.IsNullOrEmpty(infered.WidgetId) && infered.WidgetId != existing.WidgetId;
         }
     }
 }
