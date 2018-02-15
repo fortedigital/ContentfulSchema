@@ -1,10 +1,16 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forte.ContentfulSchema", "Forte.ContentfulSchema\Forte.ContentfulSchema.csproj", "{82E5B514-1F5B-4F68-A95A-8BB5795878B3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forte.ContentfulSchema.Tests", "Forte.ContentfulSchema.Tests\Forte.ContentfulSchema.Tests.csproj", "{9472A395-866D-4DAB-A11D-FE00F70B82A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A44C34A-784D-4913-A4F9-4DF161FB50DB}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

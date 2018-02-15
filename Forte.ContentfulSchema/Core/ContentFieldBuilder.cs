@@ -56,7 +56,7 @@ namespace Forte.ContentfulSchema.Core
         private Schema GetFieldItemsSchema(PropertyInfo property)
         {
             var elementType = property.PropertyType.GetGenericArguments()[0];
-            if (typeof(Entry).IsAssignableFrom(elementType) ||
+            if (typeof(ContentModelBase).IsAssignableFrom(elementType) ||
                 (elementType.IsConstructedGenericType && elementType.GetGenericTypeDefinition() == typeof(Entry<>)))
             {
                 return new Schema()
