@@ -2,6 +2,7 @@ using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.ContentTypes;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -24,9 +25,14 @@ namespace Forte.ContentfulSchema.Core
             {
                 Id = property.GetCustomAttributes<DisplayAttribute>().FirstOrDefault()?.Name ??
                                       char.ToLower(property.Name[0]) + property.Name.Substring(1),
+                
                 Name = property.GetCustomAttributes<DisplayAttribute>()
                             .Select(a => a.Prompt).FirstOrDefault() ?? property.Name,
+                
                 Type = contentFieldTypeProvider.GetContentfulTypeForProperty(property),
+                
+                Localized = property.GetCustomAttributes<LocalizableAttribute>()
+                                    .FirstOrDefault()?.IsLocalizable ?? false,
             };
 
             if (fieldDefinition.Type == SystemFieldTypes.Link)

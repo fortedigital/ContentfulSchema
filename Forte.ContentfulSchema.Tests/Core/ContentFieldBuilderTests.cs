@@ -4,6 +4,7 @@ using Forte.ContentfulSchema.Attributes;
 using Forte.ContentfulSchema.Core;
 using Moq;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using Xunit;
 
@@ -41,6 +42,23 @@ namespace Forte.ContentfulSchema.Tests.Core
 
             Assert.NotNull(result.Items);
             Assert.Equal(expectedItemsType, result.Items.Type);
+        }
+
+        [Fact]
+        public void ShouldCreateLocalizableFieldWhenLocalizableAttribueIsSetTrueOnField()
+        {
+            ContentFieldBuilder builder = CreateBuilder(SystemFieldTypes.Symbol);
+            
+            var titleField = builder.BuildContentField(
+                typeof(TestLocalizable).GetProperty(nameof(TestLocalizable.Title)));
+            var bodyField = builder.BuildContentField(
+                typeof(TestLocalizable).GetProperty(nameof(TestLocalizable.Body)));
+            var descField = builder.BuildContentField(
+                typeof(TestLocalizable).GetProperty(nameof(TestLocalizable.Description)));
+            
+            Assert.True(titleField.Localized);
+            Assert.False(bodyField.Localized);
+            Assert.False(descField.Localized);
         }
 
         private static ContentFieldBuilder CreateBuilder(string providerResponse)
@@ -83,5 +101,17 @@ namespace Forte.ContentfulSchema.Tests.Core
 
         [ContentType("test-section")]
         private class TestSectionContent { }
+
+        [ContentType("test-localizable")]
+        private class TestLocalizable
+        {
+            [Localizable(true)]
+            public string Title { get; set; }
+            
+            [Localizable(false)] 
+            public string Body { get; set; }
+
+            public string Description { get; set; }
+        }
     }
 }
