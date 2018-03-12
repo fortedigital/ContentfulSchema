@@ -65,17 +65,17 @@ namespace Forte.ContentfulSchema.Tests.Core
         }
 
         [ContentType("content-class")]
-        class ContentClass : ContentModelBase
+        class ContentClass
         {
             public MetaTags Meta { get; set; }
             public Section CustomSection { get; set; }
         }
 
         [ContentType(MetaTagsContentId)]
-        sealed class MetaTags : ContentModelBase { }
+        sealed class MetaTags { }
 
         [ContentType(SectionContentId)]
-        class Section : ContentModelBase { }
+        class Section { }
 
         [ContentType(HeaderSectionId)]
         class HeaderSection : Section { }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using Forte.ContentfulSchema.Discovery;
 
 namespace Forte.ContentfulSchema.Core
 {
@@ -56,7 +57,7 @@ namespace Forte.ContentfulSchema.Core
         private Schema GetFieldItemsSchema(PropertyInfo property)
         {
             var elementType = property.PropertyType.GetGenericArguments()[0];
-            if (typeof(ContentModelBase).IsAssignableFrom(elementType) ||
+            if (elementType.IsContentType() ||
                 (elementType.IsConstructedGenericType && elementType.GetGenericTypeDefinition() == typeof(Entry<>)))
             {
                 return new Schema()

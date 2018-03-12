@@ -5,6 +5,7 @@ using System.Linq;
 using Contentful.Core.Models.Management;
 using Contentful.Core.Models;
 using Forte.ContentfulSchema.ContentTypes;
+using Forte.ContentfulSchema.Discovery;
 
 namespace Forte.ContentfulSchema.Core
 {
@@ -23,7 +24,7 @@ namespace Forte.ContentfulSchema.Core
             AddRule(prop => prop.PropertyType == typeof(Asset), SystemFieldTypes.Link);
             AddRule(prop => prop.PropertyType.IsConstructedGenericType &&
                             prop.PropertyType.GetGenericTypeDefinition() == typeof(Entry<>), SystemFieldTypes.Link);
-            AddRule(prop => typeof(ContentModelBase).IsAssignableFrom(prop.PropertyType), SystemFieldTypes.Link);
+            AddRule(prop => prop.PropertyType.IsContentType(), SystemFieldTypes.Link);
             AddRule(prop => prop.PropertyType == typeof(Location), SystemFieldTypes.Location);
             AddRule(prop => prop.PropertyType.IsConstructedGenericType &&
                             typeof(IEnumerable<>).MakeGenericType(prop.PropertyType.GetGenericArguments()[0])
