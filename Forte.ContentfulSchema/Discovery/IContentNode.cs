@@ -7,6 +7,10 @@ namespace Forte.ContentfulSchema.Discovery
     public interface IContentNode
     {
         string ContentTypeId { get; set; }
+        
+        string DisplayField { get; set; }
+        
+        string Description { get; set; }
 
         Type ClrType { get; set; }
 

@@ -1,8 +1,10 @@
+using System;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.Discovery;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -52,11 +54,13 @@ namespace Forte.ContentfulSchema.Core
         {
             var fieldBuilder = new ContentFieldBuilder(_contentFieldTypeProvider);
             var fieldEditorBuilder = new ContentFieldEditorBuilder(_contentEditorControlProvider);
-
+            
             var contentType = new ContentType
             {
                 Name = node.ClrType.Name,
                 SystemProperties = new SystemProperties { Id = node.ContentTypeId },
+                DisplayField = GetContentfulTitle(node),
+                Description = node.Description,
                 Fields = new List<Field>(),
             };
 
@@ -74,6 +78,10 @@ namespace Forte.ContentfulSchema.Core
             {
                 var field = fieldBuilder.BuildContentField(property);
                 field.Validations = _contentFieldValidationProvider.GetValidators(property, field);
+                if (field.Type == SystemFieldTypes.Array)
+                {
+                    field.Items.Validations = _contentFieldValidationProvider.GetItemsValidators(property, field);
+                }
 
                 contentType.Fields.Add(field);
                 editorInterface.Controls.Add(fieldEditorBuilder.GetEditorControl(property, field));
@@ -85,6 +93,16 @@ namespace Forte.ContentfulSchema.Core
         private static bool IsContentTypeProperty(PropertyInfo p)
         {
             return p.PropertyType != typeof(SystemProperties) && p.SetMethod != null;
+        }
+
+        private static string GetContentfulTitle(IContentNode node)
+        {
+            if (string.IsNullOrEmpty(node.DisplayField))
+            {
+                return null;
+            }
+
+            return char.ToLowerInvariant(node.DisplayField[0]) + node.DisplayField.Substring(1);
         }
     }
 }

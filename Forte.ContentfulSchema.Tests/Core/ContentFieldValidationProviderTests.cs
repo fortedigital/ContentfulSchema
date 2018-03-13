@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.Attributes;
@@ -21,20 +22,26 @@ namespace Forte.ContentfulSchema.Tests.Core
         {
             var contentTreeMock = new Mock<IContentTree>();
             contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)))
-                .Returns(new ContentNode { ContentTypeId = MetaTagsContentId, ClrType = typeof(MetaTags) });
+                .Returns(new ContentNode {ContentTypeId = MetaTagsContentId, ClrType = typeof(MetaTags)});
 
             var provider = new ContentFieldValidationProvider(contentTreeMock.Object);
 
             var validators = provider.GetValidators(
                 typeof(ContentClass).GetProperty(nameof(ContentClass.Meta)),
-                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = nameof(ContentClass.Meta) });
+                new Field
+                {
+                    Type = SystemFieldTypes.Link,
+                    LinkType = SystemLinkTypes.Entry,
+                    Id = nameof(ContentClass.Meta)
+                });
 
             var linkValidators = validators.OfType<LinkContentTypeValidator>();
 
             Assert.Collection(linkValidators,
                 v => Assert.Collection(v.ContentTypeIds, id => Assert.Equal(MetaTagsContentId, id)));
-            
-            contentTreeMock.Verify(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)), Times.Once);
+
+            contentTreeMock.Verify(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)),
+                Times.Once);
         }
 
         [Fact]
@@ -46,14 +53,20 @@ namespace Forte.ContentfulSchema.Tests.Core
                 {
                     ContentTypeId = SectionContentId,
                     ClrType = typeof(Section),
-                    Children = new[] { new ContentNode { ContentTypeId = HeaderSectionId, ClrType = typeof(HeaderSection) } }
+                    Children = new[]
+                        {new ContentNode {ContentTypeId = HeaderSectionId, ClrType = typeof(HeaderSection)}}
                 });
 
             var provider = new ContentFieldValidationProvider(contentTreeMock.Object);
 
             var validators = provider.GetValidators(
                 typeof(ContentClass).GetProperty(nameof(ContentClass.CustomSection)),
-                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = nameof(ContentClass.CustomSection) });
+                new Field
+                {
+                    Type = SystemFieldTypes.Link,
+                    LinkType = SystemLinkTypes.Entry,
+                    Id = nameof(ContentClass.CustomSection)
+                });
 
             var linkValidators = validators.OfType<LinkContentTypeValidator>();
 
@@ -69,15 +82,44 @@ namespace Forte.ContentfulSchema.Tests.Core
         {
             var contentTreeMock = new Mock<IContentTree>();
             contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)))
-                .Returns(new ContentNode { ContentTypeId = MetaTagsContentId, ClrType = typeof(MetaTags) });
+                .Returns(new ContentNode {ContentTypeId = MetaTagsContentId, ClrType = typeof(MetaTags)});
 
             var provider = new ContentFieldValidationProvider(contentTreeMock.Object);
 
             var validators = provider.GetValidators(
                 typeof(ContentClass).GetProperty(nameof(ContentClass.Meta)),
-                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = nameof(ContentClass.EntryMeta) });
+                new Field
+                {
+                    Type = SystemFieldTypes.Link,
+                    LinkType = SystemLinkTypes.Entry,
+                    Id = nameof(ContentClass.EntryMeta)
+                });
 
             var linkValidators = validators.OfType<LinkContentTypeValidator>();
+
+            Assert.Collection(linkValidators,
+                v => Assert.Collection(v.ContentTypeIds, id => Assert.Equal(MetaTagsContentId, id)));
+        }
+
+        [Fact]
+        public void ShouldCreateValidationRuleForFieldItemsWhenTypeOfPropertyIsCollectionOfContentTypes()
+        {
+            var contentTreeMock = new Mock<IContentTree>();
+            contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)))
+                .Returns(new ContentNode {ContentTypeId = MetaTagsContentId, ClrType = typeof(MetaTags)});
+
+            var provider = new ContentFieldValidationProvider(contentTreeMock.Object);
+
+            var itemsValidators = provider.GetItemsValidators(
+                typeof(ContentClass).GetProperty(nameof(ContentClass.Tags)),
+                new Field
+                {
+                    Id = nameof(ContentClass.EntryMeta),
+                    Type = SystemFieldTypes.Array,
+                    Items = new Schema { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry },
+                });
+
+            var linkValidators = itemsValidators.OfType<LinkContentTypeValidator>();
 
             Assert.Collection(linkValidators,
                 v => Assert.Collection(v.ContentTypeIds, id => Assert.Equal(MetaTagsContentId, id)));
@@ -89,18 +131,23 @@ namespace Forte.ContentfulSchema.Tests.Core
             public MetaTags Meta { get; set; }
             public Section CustomSection { get; set; }
             public Entry<MetaTags> EntryMeta { get; set; }
+
+            public List<MetaTags> Tags { get; set; }
         }
 
         [ContentType(MetaTagsContentId)]
-        sealed class MetaTags { }
+        sealed class MetaTags
+        {
+        }
 
         [ContentType(SectionContentId)]
-        class Section { }
+        class Section
+        {
+        }
 
         [ContentType(HeaderSectionId)]
-        class HeaderSection : Section { }
+        class HeaderSection : Section
+        {
+        }
     }
-
-
-
 }

@@ -29,6 +29,28 @@ namespace Forte.ContentfulSchema.Core
             return validators;
         }
 
+        public List<IFieldValidator> GetItemsValidators(PropertyInfo property, Field field)
+        {
+            var validators = new List<IFieldValidator>();
+            
+            if (field.Type == SystemFieldTypes.Array && field.Items.Type == SystemFieldTypes.Link && field.Items.LinkType == SystemLinkTypes.Entry && property.PropertyType.IsGenericType)
+            {
+                var collectionType = property.PropertyType.GenericTypeArguments.FirstOrDefault();
+                var contentTypeAttr = collectionType?.GetContentType();
+
+                if (contentTypeAttr != null)
+                {
+                    var node = contentTree.GetNodeByContentTypeId(contentTypeAttr.ContentTypeId);
+                    var descedants = node.GetAllDescedants();
+                    
+                    validators.Add(new LinkContentTypeValidator(descedants.Select(d => d.ContentTypeId)
+                        .Append(contentTypeAttr.ContentTypeId)));
+                }
+            }
+
+            return validators;
+        }
+
         private LinkContentTypeValidator GetLinkContentTypeValidator(PropertyInfo property, Field field)
         {
             if (field.Type == SystemFieldTypes.Link && field.LinkType == SystemLinkTypes.Entry)
