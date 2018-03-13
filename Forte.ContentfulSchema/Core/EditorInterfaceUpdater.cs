@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models.Management;
-using Forte.ContentfulSchema.ContentTypes;
 
 namespace Forte.ContentfulSchema.Core
 {
@@ -16,42 +15,43 @@ namespace Forte.ContentfulSchema.Core
             _contentfulManagementClient = contentfulManagementClient;
         }
 
-        public async Task UpdateEditorInterface(InferedContentType inferedContentType)
+        public async Task SyncEditorInterface(ContentSchema contentSchema)
         {
-            var editorInterface = await _contentfulManagementClient.GetEditorInterface(inferedContentType.ContentTypeId);
-            var controlsWithFields = GetControlsWithFields(inferedContentType, editorInterface);
-            
-            bool editorInterfaceUpdated = false;
-            foreach (var controlToSync in controlsWithFields)
-            {
-                if (controlToSync.Field.FieldId == "slug" && controlToSync.Control.WidgetId != "slugEditor")
-                {
-                    controlToSync.Control.WidgetId = "slugEditor";
-                    editorInterfaceUpdated = true;
-                }
+            var existingEditorInterface = await _contentfulManagementClient.GetEditorInterface(contentSchema.ContentType.SystemProperties.Id);
 
-                if (controlToSync.Field.Property.PropertyType.IsAssignableFrom(typeof(ILongString)) &&
-                    controlToSync.Control.WidgetId != "multipleLine")
+            var matchedInterfaceControls = MatchEditorControls(contentSchema.EditorInterface, existingEditorInterface);
+
+            bool editorInterfaceUpdated = false;
+            foreach (var controlToSync in matchedInterfaceControls)
+            {
+                if (IsUpdateAvailable(controlToSync.InferedControl, controlToSync.ExistingControl))
                 {
-                    controlToSync.Control.WidgetId = "multipleLine";
+                    controlToSync.ExistingControl.WidgetId = controlToSync.InferedControl.WidgetId;
                     editorInterfaceUpdated = true;
                 }
             }
 
             if (editorInterfaceUpdated)
             {
-                editorInterface = await _contentfulManagementClient.UpdateEditorInterface(editorInterface,
-                    inferedContentType.ContentTypeId, editorInterface.SystemProperties.Version.Value);
+                existingEditorInterface = await _contentfulManagementClient.UpdateEditorInterface(
+                    existingEditorInterface,
+                    contentSchema.ContentType.SystemProperties.Id, 
+                    existingEditorInterface.SystemProperties.Version.Value);
             }
         }
 
-        private IEnumerable<(InferedContentTypeField Field, EditorInterfaceControl Control)> GetControlsWithFields(
-            InferedContentType contentType, EditorInterface editorInterface)
+        private IEnumerable<(EditorInterfaceControl InferedControl, EditorInterfaceControl ExistingControl)>
+            MatchEditorControls(EditorInterface inferedInterface, EditorInterface existingInterface)
         {
-            return editorInterface.Controls.Join(contentType.Fields,
-                c => c.FieldId,
-                f => f.FieldId,
-                (c, f) => (Field: f, Control: c));
+            return inferedInterface.Controls.Join(existingInterface.Controls,
+                infered => infered.FieldId,
+                existing => existing.FieldId,
+                (i, e) => (InferedControl: i, ExistingControl: e));
+        }
+
+        private static bool IsUpdateAvailable(EditorInterfaceControl infered, EditorInterfaceControl existing)
+        {
+            return !string.IsNullOrEmpty(infered.WidgetId) && infered.WidgetId != existing.WidgetId;
         }
     }
 }
