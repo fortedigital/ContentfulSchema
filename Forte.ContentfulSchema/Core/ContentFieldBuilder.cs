@@ -23,8 +23,7 @@ namespace Forte.ContentfulSchema.Core
         {
             var fieldDefinition = new Field
             {
-                Id = property.GetCustomAttributes<DisplayAttribute>().FirstOrDefault()?.Name ??
-                                      char.ToLower(property.Name[0]) + property.Name.Substring(1),
+                Id = char.ToLower(property.Name[0]) + property.Name.Substring(1),
                 
                 Name = property.GetCustomAttributes<DisplayAttribute>()
                             .Select(a => a.Prompt).FirstOrDefault() ?? property.Name,
