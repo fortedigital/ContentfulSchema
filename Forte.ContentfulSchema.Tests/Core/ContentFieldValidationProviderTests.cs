@@ -20,28 +20,28 @@ namespace Forte.ContentfulSchema.Tests.Core
         public void ShouldCreateValidationRuleWithOneTypeAllowedForPropertyWithSealedType()
         {
             var contentTreeMock = new Mock<IContentTree>();
-            contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.IsAny<string>()))
+            contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)))
                 .Returns(new ContentNode { ContentTypeId = MetaTagsContentId, ClrType = typeof(MetaTags) });
 
             var provider = new ContentFieldValidationProvider(contentTreeMock.Object);
 
             var validators = provider.GetValidators(
                 typeof(ContentClass).GetProperty(nameof(ContentClass.Meta)),
-                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = MetaTagsContentId });
+                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = nameof(ContentClass.Meta) });
 
             var linkValidators = validators.OfType<LinkContentTypeValidator>();
 
-            Assert.NotEmpty(linkValidators);
             Assert.Collection(linkValidators,
-                v => Assert.Collection(v.ContentTypeIds,
-                    id => Assert.Equal(MetaTagsContentId, id)));
+                v => Assert.Collection(v.ContentTypeIds, id => Assert.Equal(MetaTagsContentId, id)));
+            
+            contentTreeMock.Verify(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)), Times.Once);
         }
 
         [Fact]
         public void ShouldCreateValidationRuleWithTwoTypesAllowedWhenPropertyTypeHasOneChildType()
         {
             var contentTreeMock = new Mock<IContentTree>();
-            contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.IsAny<string>()))
+            contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == SectionContentId)))
                 .Returns(new ContentNode
                 {
                     ContentTypeId = SectionContentId,
@@ -53,7 +53,7 @@ namespace Forte.ContentfulSchema.Tests.Core
 
             var validators = provider.GetValidators(
                 typeof(ContentClass).GetProperty(nameof(ContentClass.CustomSection)),
-                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = SectionContentId });
+                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = nameof(ContentClass.CustomSection) });
 
             var linkValidators = validators.OfType<LinkContentTypeValidator>();
 
@@ -64,11 +64,31 @@ namespace Forte.ContentfulSchema.Tests.Core
                     id => Assert.Equal(SectionContentId, id)));
         }
 
+        [Fact]
+        public void ShouldCreateValidationRuleWhenTypeOfPropertyIsGenericEntryWithContentTypeParam()
+        {
+            var contentTreeMock = new Mock<IContentTree>();
+            contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == MetaTagsContentId)))
+                .Returns(new ContentNode { ContentTypeId = MetaTagsContentId, ClrType = typeof(MetaTags) });
+
+            var provider = new ContentFieldValidationProvider(contentTreeMock.Object);
+
+            var validators = provider.GetValidators(
+                typeof(ContentClass).GetProperty(nameof(ContentClass.Meta)),
+                new Field { Type = SystemFieldTypes.Link, LinkType = SystemLinkTypes.Entry, Id = nameof(ContentClass.EntryMeta) });
+
+            var linkValidators = validators.OfType<LinkContentTypeValidator>();
+
+            Assert.Collection(linkValidators,
+                v => Assert.Collection(v.ContentTypeIds, id => Assert.Equal(MetaTagsContentId, id)));
+        }
+
         [ContentType("content-class")]
         class ContentClass
         {
             public MetaTags Meta { get; set; }
             public Section CustomSection { get; set; }
+            public Entry<MetaTags> EntryMeta { get; set; }
         }
 
         [ContentType(MetaTagsContentId)]

@@ -33,11 +33,16 @@ namespace Forte.ContentfulSchema.Core
         {
             if (field.Type == SystemFieldTypes.Link && field.LinkType == SystemLinkTypes.Entry)
             {
-                var node = contentTree.GetNodeByContentTypeId(field.Id);
+                var contentTypeAttr = property.PropertyType.GetContentType();
 
-                var descedants = node.GetAllDescedants();
+                if (contentTypeAttr != null)
+                {
+                    var node = contentTree.GetNodeByContentTypeId(contentTypeAttr.ContentTypeId);
+                    var descedants = node.GetAllDescedants();
 
-                return new LinkContentTypeValidator(descedants.Select(d => d.ContentTypeId).Append(field.Id));
+                    return new LinkContentTypeValidator(descedants.Select(d => d.ContentTypeId)
+                        .Append(contentTypeAttr.ContentTypeId));
+                }
             }
 
             return null;
