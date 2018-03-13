@@ -17,6 +17,7 @@ namespace Forte.ContentfulSchema.Core
         {
             AddRule((prop, field) => field.Id == "slug", SystemWidgetIds.SlugEditor);
             AddRule((prop, field) => prop.PropertyType.IsAssignableFrom(typeof(ILongString)), SystemWidgetIds.MultipleLine);
+            AddRule((prop, field) => prop.PropertyType.IsAssignableFrom(typeof(IMarkdownString)), SystemWidgetIds.Markdown);
         }
                
         public string GetWidgetIdForField(PropertyInfo property, Field field)

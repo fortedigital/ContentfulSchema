@@ -29,6 +29,8 @@ namespace Forte.ContentfulSchema.Core
             AddRule(prop => prop.PropertyType.IsConstructedGenericType &&
                             typeof(IEnumerable<>).MakeGenericType(prop.PropertyType.GetGenericArguments()[0])
                                 .IsAssignableFrom(prop.PropertyType), SystemFieldTypes.Array);
+            AddRule(prop => typeof(ILongString).IsAssignableFrom(prop.PropertyType), SystemFieldTypes.Text);
+            AddRule(prop => typeof(IMarkdownString).IsAssignableFrom(prop.PropertyType), SystemFieldTypes.Text);
         }
 
         public string GetContentfulTypeForProperty(PropertyInfo property)
