@@ -12,11 +12,12 @@ Install-Package Forte.ContentfulSchema
 
 How to use
 
-Create a content class with `ContentType` attribute and inherit `ContentModelBase` class.
+Create a content class with `ContentType` attribute. The attribute argument is an Id of the content type
+and must be unique throughout the application.
 
 ```c#
 [ContentType("article")]
-public class Article : ContentModelBase
+public class Article
 {
     [ContentTypeDisplayField]
     public string Title { get; set ;}
@@ -30,7 +31,7 @@ public class Article : ContentModelBase
 
 
 [ContentType("author")]
-public class Author : ContentModelBase
+public class Author
 {    
     public string GivenName { get; set; }
     
@@ -39,7 +40,8 @@ public class Author : ContentModelBase
 } 
 ```
 
-Attribute `ContentTypeDisplayField` is used to mark a property that will be used as an `Display Field` in Contentful.
+`ContentTypeDisplayField` attribute is used to mark a property that will be used as an `Display Field` in Contentful.
+Only one field for a given content type should be decorated with this attribute.
 
 Then in `Startup` file run content synchronization:
 
@@ -62,7 +64,49 @@ public void ConfigureServices(IServiceCollection services)
 
 `Forte.ContentfulSchema` adds an extension method `SyncContentTypes<T>` that calls the Contentful API and synchronizes content types between Contentufl and code.
 
-It get a type parameter that indicates an assembly in which content types should be looked for.
+It takes a type parameter that indicates an assembly in which content types should be looked for.
 
-`SyncContentTypes` creates a new types and updates existing ones **but will not remove types that exist in Contentful but does not exist in a code**
+`SyncContentTypes` creates a new types and updates existing ones **but will not remove types that exists in Contentful but does not exist in code.**
+
+**Library is compliant with .NET Standard 2.0**
+
+## Features
+
+### Localizable content
+
+You can use `Localizable(true)` attribute on any property to mark them as localizable in Contentful.
+
+### Reference content type validation
+
+If you create a property in you content type that is a reference to another content type a link validator 
+will be added. Inheritance is supported so its possible to assign the same content type and its descendands.
+
+### Content type customization
+
+Forte.ContentfulSchema provides a basic mapping between .NET types and Contentful types. If you want to change
+that behaviour you can use/extend `ContentFieldTypeProvider` class or implement `IContentFieldTypeProvider` interface.
+There is only one method that needs to be implemented `GetContentfulTypeForProperty`.
+Default Contentful field types can be found in `SystemFieldTypes` class.
+
+```c#
+public interface IContentFieldTypeProvider
+{
+    string GetContentfulTypeForProperty(PropertyInfo property);
+}
+```
+
+### Editor customization
+
+Forte.ContentfulSchema provides basic editor configuration. If you want to change controls you should use/extend
+`ContentEditorControlProvider` class or implement `IContentEditorControlProvider` interface. It has only one
+method that takes C# PropertyInfo and Contentful Field as parameters and should return Contentful WidgetId.
+Default widget ids can be found in `SystemWidgetIds` class.
+
+```c#
+public interface IContentEditorControlProvider
+{
+    string GetWidgetIdForField(PropertyInfo property, Field field);
+}
+```
+
 
