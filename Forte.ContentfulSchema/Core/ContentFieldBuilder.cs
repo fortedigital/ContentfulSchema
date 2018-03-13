@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Forte.ContentfulSchema.Discovery;
+using System;
 
 namespace Forte.ContentfulSchema.Core
 {
@@ -23,7 +24,8 @@ namespace Forte.ContentfulSchema.Core
         {
             var fieldDefinition = new Field
             {
-                Id = char.ToLower(property.Name[0]) + property.Name.Substring(1),
+                Id = property.GetCustomAttributes<DisplayAttribute>().FirstOrDefault()?.Name ??
+                        char.ToLower(property.Name[0]) + property.Name.Substring(1),
                 
                 Name = property.GetCustomAttributes<DisplayAttribute>()
                             .Select(a => a.Prompt).FirstOrDefault() ?? property.Name,
@@ -32,6 +34,8 @@ namespace Forte.ContentfulSchema.Core
                 
                 Localized = property.GetCustomAttributes<LocalizableAttribute>()
                                     .FirstOrDefault()?.IsLocalizable ?? false,
+
+                Disabled = property.GetCustomAttributes<ObsoleteAttribute>() .Any(),
             };
 
             if (fieldDefinition.Type == SystemFieldTypes.Link)
