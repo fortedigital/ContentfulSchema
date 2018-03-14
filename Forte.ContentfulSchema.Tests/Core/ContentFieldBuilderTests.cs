@@ -45,6 +45,28 @@ namespace Forte.ContentfulSchema.Tests.Core
         }
 
         [Fact]
+        public void ShouldSetItemsLinkTypeToAssetForPropertyOfAssetCollectionType()
+        {
+            ContentFieldBuilder builder = CreateBuilder(SystemFieldTypes.Array);
+            var property = typeof(TestContent).GetProperty(nameof(TestContent.AssetArray));
+            var result = builder.BuildContentField(property);
+            
+            Assert.NotNull(result?.Items);
+            Assert.Equal(SystemLinkTypes.Asset, result.Items.LinkType);
+        }
+
+        [Fact]
+        public void ShouldSetItemsLinkTypeToEntryForPropertyOfContentTypeCollectionType()
+        {
+            ContentFieldBuilder builder = CreateBuilder(SystemFieldTypes.Array);
+            var property = typeof(TestContent).GetProperty(nameof(TestContent.SectionContentArray));
+            var result = builder.BuildContentField(property);
+            
+            Assert.NotNull(result?.Items);
+            Assert.Equal(SystemLinkTypes.Entry, result.Items.LinkType);
+        }
+
+        [Fact]
         public void ShouldCreateLocalizableFieldWhenLocalizableAttribueIsSetTrueOnField()
         {
             ContentFieldBuilder builder = CreateBuilder(SystemFieldTypes.Symbol);
@@ -97,6 +119,7 @@ namespace Forte.ContentfulSchema.Tests.Core
             public IEnumerable<string> StringArray { get; set; }
             public IEnumerable<Entry<string>> EntryArray { get; set; }
             public IEnumerable<Asset> AssetArray { get; set; }
+            public IEnumerable<TestSectionContent> SectionContentArray { get; set; }
         }
 
         [ContentType("test-section")]

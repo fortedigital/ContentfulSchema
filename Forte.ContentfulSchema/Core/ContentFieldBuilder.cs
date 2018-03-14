@@ -53,7 +53,7 @@ namespace Forte.ContentfulSchema.Core
 
         private static string GetLinkType(PropertyInfo property)
         {
-            if (property.PropertyType == typeof(Asset))
+            if (property.IsTypeOf<Asset>() || property.IsCollectionOf<Asset>())
             {
                 return SystemLinkTypes.Asset;
             }
