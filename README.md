@@ -17,9 +17,9 @@ and must be unique throughout the application.
 
 ```c#
 [ContentType("article")]
+[ContentTypeDisplayField(nameof(Title))]
 public class Article
-{
-    [ContentTypeDisplayField]
+{   
     public string Title { get; set ;}
     
     public string Body { get; set; }
@@ -31,17 +31,16 @@ public class Article
 
 
 [ContentType("author")]
+[ContentTypeDisplayField(nameof(FamilyName))]
 public class Author
 {    
     public string GivenName { get; set; }
-    
-    [ContentTypeDisplayField]    
+        
     public string FamilyName { get; set; }
 } 
 ```
 
-`ContentTypeDisplayField` attribute is used to mark a property that will be used as an `Display Field` in Contentful.
-Only one field for a given content type should be decorated with this attribute.
+`ContentTypeDisplayField` attribute is used to mark a property that will be used as a `Display Field` in Contentful. If not set the first property of a type will be used as a `Display Field`.
 
 Then in `Startup` file run content synchronization:
 
