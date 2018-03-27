@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Forte.ContentfulSchema.Attributes;
 using Forte.ContentfulSchema.Discovery;
@@ -23,6 +24,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
                 typeof(NotContentType),
                 typeof(CustomizedContentType),
                 typeof(InheritedContentType),
+                typeof(IndirectlyInheritedContentType),
             };
         }
 
@@ -50,12 +52,14 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             var customizedContentNode = contentTree.Roots[2];
             
             Assert.Collection(baseTypeOneNode.Children,
-                child => Assert.Equal(typeof(ChildTypeOne), child.ClrType));
+                child => Assert.Equal(typeof(ChildTypeOne), child.ClrType),
+                child => Assert.Equal(typeof(IndirectlyInheritedContentType), child.ClrType));
             Assert.Collection(baseTypeTwoNode.Children,
                 child => Assert.Equal(typeof(ChildTypeTwo), child.ClrType));
             Assert.Collection(baseTypeOneNode.Children,
                 child => Assert.Collection(child.Children, 
-                    grandChild => Assert.Equal(typeof(GrandChildOne), grandChild.ClrType)));
+                    grandChild => Assert.Equal(typeof(GrandChildOne), grandChild.ClrType)),
+                child => Assert.Empty(child.Children));
             Assert.Empty(customizedContentNode.Children);
         }
 
@@ -65,9 +69,21 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             var builder = new ContentTreeBuilder(_testTypes);
             var contentTree = builder.DiscoverContentStructure();
 
-            var baseTypeOneNode = contentTree.Roots[0];
+            var baseTypeOneNode = contentTree.Roots.Single(r => r.ClrType == typeof(BaseTypeOne));
 
             Assert.DoesNotContain(baseTypeOneNode.Children, child => child.ClrType == typeof(InheritedContentType));
+        }
+
+        [Fact]
+        public void ShouldCorrectlyDiscoverPredecessorWhenContentTypeInheritedIndirectly()
+        {
+            var builder = new ContentTreeBuilder(_testTypes);
+            var contentTree = builder.DiscoverContentStructure();
+            
+            var baseTypeOneNode = contentTree.GetRootOfType<BaseTypeOne>();
+            
+            Assert.Equal(2, baseTypeOneNode.Children.Count);
+            Assert.Contains(baseTypeOneNode.Children, child => child.ClrType == typeof(IndirectlyInheritedContentType));
         }
 
         [Fact]

@@ -26,4 +26,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
     internal class CustomizedContentType : NotContentType { }
 
     internal class InheritedContentType : BaseTypeOne { }
+    
+    [ContentType("indirectly-inherited-content-type")]
+    internal class IndirectlyInheritedContentType : InheritedContentType { }
 }

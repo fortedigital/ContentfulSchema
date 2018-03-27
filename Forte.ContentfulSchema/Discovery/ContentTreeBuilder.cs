@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 [assembly: InternalsVisibleTo("Forte.ContentfulSchema.Tests")]
+
 namespace Forte.ContentfulSchema.Discovery
 {
     internal class ContentTreeBuilder
@@ -31,13 +32,23 @@ namespace Forte.ContentfulSchema.Discovery
         {
             foreach (var type in _availableContentTypes)
             {
-                ContentTypeAttribute contentTypeAttribute = GetContentTypeAttribute(type);
-                if (GetContentTypeAttribute(type.BaseType) == null)
+                bool hasContentTypePredecessor =
+                    GetInheritancePredecessors(type).Any(t => GetContentTypeAttribute(t) != null);
+
+                if (!hasContentTypePredecessor)
                 {
                     var root = BuildContentNodeForType(type, null);
                     root.Children = GetChildren(root);
                     yield return root;
                 }
+            }
+        }
+
+        private static IEnumerable<Type> GetInheritancePredecessors(Type type)
+        {
+            for (var current = type.BaseType; current != null; current = current.BaseType)
+            {
+                yield return current;
             }
         }
 
@@ -85,7 +96,27 @@ namespace Forte.ContentfulSchema.Discovery
 
         private IList<Type> FindChildren(Type baseType)
         {
-            return _availableContentTypes.Where(t => t.BaseType.GUID == baseType.GUID).ToList();
+            var children = new List<Type>();
+            var subclasses = _availableContentTypes.Where(t => t.IsSubclassOf(baseType)).ToList();
+            foreach (var subclass in subclasses)
+            {
+                if (subclass.BaseType.GUID == baseType.GUID)
+                {
+                    children.Add(subclass);
+                }
+                else
+                {
+                    var contentTypeBaseClass = GetInheritancePredecessors(subclass)
+                        .FirstOrDefault(t => GetContentTypeAttribute(t) != null);
+
+                    if (contentTypeBaseClass != null && contentTypeBaseClass.GUID == baseType.GUID)
+                    {
+                        children.Add(subclass);
+                    }
+                }
+            }
+
+            return children;
         }
     }
 }
