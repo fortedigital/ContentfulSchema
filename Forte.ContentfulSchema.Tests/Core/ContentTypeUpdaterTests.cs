@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Contentful.Core;
 using Contentful.Core.Models;
-using Forte.ContentfulSchema.Core;
 using Moq;
 using Xunit;
 
