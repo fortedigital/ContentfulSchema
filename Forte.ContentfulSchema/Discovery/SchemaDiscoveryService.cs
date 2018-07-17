@@ -31,7 +31,7 @@ namespace Forte.ContentfulSchema.Discovery
             this.fieldControlConvention = fieldControlConvention;
         }
 
-        public SchemaDefinition DiscoverSchema(IEnumerable<Type> types)
+        public ContentSchemaDefinition DiscoverSchema(IEnumerable<Type> types)
         {
             var discoveredContentTypes = types
                 .Select(t => new {ClrType = t, ContentTypeAttribute = t.GetCustomAttribute<ContentTypeAttribute>()})
@@ -41,7 +41,7 @@ namespace Forte.ContentfulSchema.Discovery
         
             var contentTypeDefinitions = this.GetContentTypeDefinitions(discoveredContentTypes);
             
-            return new SchemaDefinition(contentTypeDefinitions);
+            return new ContentSchemaDefinition(contentTypeDefinitions);
         }
 
         private IReadOnlyDictionary<Type, ContentTypeDefinition> GetContentTypeDefinitions(IEnumerable<(Type ClrType, string ContentTypeId)> discoveredContentTypes)

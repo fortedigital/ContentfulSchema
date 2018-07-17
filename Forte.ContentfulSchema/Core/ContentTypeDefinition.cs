@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Contentful.Core.Models;
@@ -211,6 +212,9 @@ namespace Forte.ContentfulSchema.Core
 
         private static bool Equals(LinkContentTypeValidator first, LinkContentTypeValidator second)
         {
+            if (first.Message != second.Message &&
+                !(String.IsNullOrEmpty(first.Message) && String.IsNullOrEmpty(second.Message)))
+                return false;
             if (first.Message != second.Message)
                 return false;
             if (first.ContentTypeIds.SequenceEqual(second.ContentTypeIds) == false)

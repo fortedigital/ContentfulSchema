@@ -7,11 +7,11 @@ using Contentful.Core.Models;
 
 namespace Forte.ContentfulSchema.Core
 {
-    public class SchemaSynchronizationService
+    public class ContentSchemaSynchronizationService
     {
         private readonly IContentfulManagementClient contentfulManagementClient;
 
-        public SchemaSynchronizationService(IContentfulManagementClient contentfulManagementClient)
+        public ContentSchemaSynchronizationService(IContentfulManagementClient contentfulManagementClient)
         {
             this.contentfulManagementClient = contentfulManagementClient;
         }

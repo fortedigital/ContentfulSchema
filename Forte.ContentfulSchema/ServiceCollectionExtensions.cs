@@ -1,16 +1,14 @@
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Contentful.Core;
 using Forte.ContentfulSchema.Conventions;
-using Forte.ContentfulSchema.Core;
 using Forte.ContentfulSchema.Discovery;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Forte.ContentfulSchema
 {
-    public static class ContentfulManagementClientExtensions
+    public static class ServiceCollectionExtensions
     {
-        public static async Task<SchemaDefinition> UpdateSchemaAsync<TApp>(this IContentfulManagementClient client)
+        public static void AddContentSchemaFromAssemblyOf<TApp>(this IServiceCollection services)
         {
             var namingConventions = new DefaultNamingConventions();
             var fieldTypeConvention = ContentTypeFieldTypeConvention.Default;
@@ -26,16 +24,8 @@ namespace Forte.ContentfulSchema
                 fieldTypeConvention, DefaultFieldControlConvention.Default, validationProviders);
             
             var schema = discoveryService.DiscoverSchema(typeof(TApp).GetTypeInfo().Assembly.GetTypes());
-
-            await client.UpdateSchemaAsync(schema);
-
-            return schema;
-        }
-
-        public static async Task UpdateSchemaAsync(this IContentfulManagementClient client, SchemaDefinition schema)
-        {
-            var schemaSyncService = new SchemaSynchronizationService(client);
-            await schemaSyncService.UpdateSchema(schema.ContentTypeDefinitions.Select(kvp => kvp.Value));
+            
+            services.AddSingleton(schema);
         }
     }
 }
