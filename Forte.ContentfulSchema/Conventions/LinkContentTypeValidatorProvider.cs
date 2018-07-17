@@ -9,10 +9,10 @@ namespace Forte.ContentfulSchema.Conventions
 {
     public class LinkContentTypeValidatorProvider : IFieldValidationProvider
     {
-        public IEnumerable<IFieldValidator> GetFieldValidators(PropertyInfo property, IDictionary<Type, string> contentTypeIdLookup)
+        public IEnumerable<IFieldValidator> GetFieldValidators(PropertyInfo property, IDictionary<Type, string> contentTypeNameLookup)
         {
             var propertyType = property.PropertyType;
-            return GetValidators(propertyType, contentTypeIdLookup);
+            return GetValidators(propertyType, contentTypeNameLookup    );
         }
 
         public IEnumerable<IFieldValidator> GetArrayItemValidators(PropertyInfo property, IDictionary<Type, string> contentTypeNameLookup)
