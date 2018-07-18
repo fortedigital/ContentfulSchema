@@ -33,38 +33,26 @@ namespace Forte.ContentfulSchema.Tests.Core
                 v => Assert.Collection(v.ContentTypeIds, id => Assert.Equal(MetaTagsContentId, id.ToCamelcase())));
         }
 
-        //[Fact]
-        //public void ShouldCreateValidationRuleWithTwoTypesAllowedWhenPropertyTypeHasOneChildType()
-        //{
-        //    var contentTreeMock = new Mock<IContentTree>();
-        //    contentTreeMock.Setup(m => m.GetNodeByContentTypeId(It.Is<string>(id => id == SectionContentId)))
-        //        .Returns(new ContentNode
-        //        {
-        //            ContentTypeId = SectionContentId,
-        //            ClrType = typeof(Section),
-        //            Children = new[]
-        //                {new ContentNode {ContentTypeId = HeaderSectionId, ClrType = typeof(HeaderSection)}}
-        //        });
+        [Fact]
+        public void ShouldCreateValidationRuleWithTwoTypesAllowedWhenPropertyTypeHasOneChildType()
+        {
+            var provider = new LinkContentTypeValidatorProvider();
+            var propertyWithChildType = typeof(ContentClass).GetProperty(nameof(ContentClass.CustomSection));
+            var childType = typeof(HeaderSection);
+            var nameLookUp = new Dictionary<Type, string>() {
+                { propertyWithChildType.PropertyType, SectionContentId},
+                { childType, HeaderSectionId}
+            };
 
-        //    var provider = new ContentFieldValidationProvider(contentTreeMock.Object);
+            var validators = provider.GetFieldValidators(propertyWithChildType, nameLookUp);
+            var linkValidators = validators.OfType<LinkContentTypeValidator>();
 
-        //    var validators = provider.GetValidators(
-        //        typeof(ContentClass).GetProperty(nameof(ContentClass.CustomSection)),
-        //        new Field
-        //        {
-        //            Type = SystemFieldTypes.Link,
-        //            LinkType = SystemLinkTypes.Entry,
-        //            Id = nameof(ContentClass.CustomSection)
-        //        });
-
-        //    var linkValidators = validators.OfType<LinkContentTypeValidator>();
-
-        //    Assert.NotEmpty(linkValidators);
-        //    Assert.Collection(linkValidators,
-        //        v => Assert.Collection(v.ContentTypeIds,
-        //            id => Assert.Equal(HeaderSectionId, id),
-        //            id => Assert.Equal(SectionContentId, id)));
-        //}
+            Assert.NotEmpty(linkValidators);
+            Assert.Collection(linkValidators,
+                v => Assert.Collection(v.ContentTypeIds,
+                    id => Assert.Equal(SectionContentId, id),
+                    id => Assert.Equal(HeaderSectionId, id)));
+        }
 
         //[Fact]
         //public void ShouldCreateValidationRuleWhenTypeOfPropertyIsGenericEntryWithContentTypeParam()
