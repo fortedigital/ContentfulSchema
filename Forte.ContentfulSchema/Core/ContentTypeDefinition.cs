@@ -21,6 +21,12 @@ namespace Forte.ContentfulSchema.Core
         {
             var modified = false;
 
+            if (this.ContentType.SystemProperties.Id != contentType.SystemProperties.Id)
+            {
+                contentType.SystemProperties.Id = this.ContentType.SystemProperties.Id;
+                modified = true;
+            }
+
             if (this.ContentType.Name != contentType.Name)
             {
                 contentType.Name = this.ContentType.Name;
