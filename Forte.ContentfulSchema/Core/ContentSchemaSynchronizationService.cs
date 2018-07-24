@@ -9,19 +9,19 @@ namespace Forte.ContentfulSchema.Core
 {
     public class ContentSchemaSynchronizationService
     {
-        private readonly IContentfulManagementClient contentfulManagementClient;
+        private readonly IContentfulManagementClient _contentfulManagementClient;
 
         public ContentSchemaSynchronizationService(IContentfulManagementClient contentfulManagementClient)
         {
-            this.contentfulManagementClient = contentfulManagementClient;
+            this._contentfulManagementClient = contentfulManagementClient;
         }
 
         public async Task UpdateSchema(IEnumerable<ContentTypeDefinition> inferedDefinitions)
         {
-            var existingContentTypes = await this.contentfulManagementClient.GetContentTypes();
+            var existingContentTypes = await this._contentfulManagementClient.GetContentTypes();
 
             var matchedTypes = inferedDefinitions.GroupJoin(existingContentTypes,
-                infered => infered.ContentType.SystemProperties.Id,
+                infered => infered.InferedContentType.SystemProperties.Id,
                 existing => existing.SystemProperties.Id,
                 (i, e) => (InferedContentTypeDefinition: i, ExistingType: e.SingleOrDefault()));
 
@@ -35,10 +35,9 @@ namespace Forte.ContentfulSchema.Core
                 }
                 catch (Exception e)
                 {
-                    throw new Exception($"Failed to update content type: {syncItem.InferedContentTypeDefinition.ContentType.SystemProperties.Id}.", e);
+                    throw new Exception($"Failed to update content type: {syncItem.InferedContentTypeDefinition.InferedContentType.SystemProperties.Id}.", e);
                 }
             }
-
         }
 
         private async Task<ContentType> SyncContentType(
@@ -65,7 +64,7 @@ namespace Forte.ContentfulSchema.Core
         private async Task SyncEditorInterface(ContentType contentType,
             (ContentTypeDefinition InferedContentTypeDefinition, ContentType ExistingContentType) syncItem)
         {
-            var editorInterface = await this.contentfulManagementClient.GetEditorInterface(
+            var editorInterface = await this._contentfulManagementClient.GetEditorInterface(
                 contentType.SystemProperties.Id);
 
             var editorInterfaceModified = syncItem.InferedContentTypeDefinition.Update(editorInterface);
@@ -81,9 +80,9 @@ namespace Forte.ContentfulSchema.Core
 
         private async Task<ContentType> CreateOrUpdateContentType(ContentType contentType)
         {
-            contentType = await this.contentfulManagementClient.CreateOrUpdateContentType(contentType);
+            contentType = await this._contentfulManagementClient.CreateOrUpdateContentType(contentType);
             
-            await this.contentfulManagementClient.ActivateContentType(
+            await this._contentfulManagementClient.ActivateContentType(
                 contentType.SystemProperties.Id,
                 contentType.SystemProperties.Version.Value);
             

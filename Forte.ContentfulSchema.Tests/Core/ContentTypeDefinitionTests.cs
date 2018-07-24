@@ -1,219 +1,189 @@
 using Contentful.Core.Models;
+using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.Core;
 using Moq;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Forte.ContentfulSchema.Tests
+namespace Forte.ContentfulSchema.Tests.Core
 {
     public class ContentTypeDefinitionTests
     {
         [Theory]
-        [MemberData(nameof(DifferentContentTypes))]
-        public void ShouldReturnTrueWhenObjectsPropertiesAreDifferent(ContentPair pair)
+        [MemberData(nameof(ContentTypeModificators))]
+        public void ShouldReturnTrueWhenUpdatingWithDifferentProperties(Action<ContentType> setDifferentProperty)
         {
-            var definition = new ContentTypeDefinition(pair.First, null);
-            Assert.True(definition.Update(pair.Second),
-                $"Comparing objects: {pair.PrettyPrint()}");
+            var originalContentType = CreateDefaultContentType();
+            var contentTypeClone = CloneContentType(originalContentType);
+            var definition = new ContentTypeDefinition(contentTypeClone, null);
+            
+            setDifferentProperty(originalContentType);
+            Assert.True(definition.Update(originalContentType));
+        }
+
+        [Fact]
+        public void ShouldReturnFalseWhenUpdatingWithTheSameProperties()
+        {
+            var contentType = CreateDefaultContentType();
+            var definition = new ContentTypeDefinition(contentType, null);
+            var sameContentType = CreateDefaultContentType();
+            Assert.False(definition.Update(sameContentType));
         }
 
         [Theory]
-        [MemberData(nameof(SameContentTypes))]
-        public void ShouldReturnFalseWhenObjectsPropertiesAreEqual(ContentPair pair)
+        [MemberData(nameof(FieldsModificators))]
+        public void ShouldReturnTrueForUpdatedFields(Action<List<Field>> modifyFields)
         {
-            var definition = new ContentTypeDefinition(pair.First, null);
-            Assert.False(definition.Update(pair.Second),
-                $"Comparing objects: {pair.PrettyPrint()}");
+            var originalContentType = CreateDefaultContentType();
+            var contentTypeClone = CloneContentType(originalContentType);
+            var definition = new ContentTypeDefinition(contentTypeClone, null);
+            modifyFields(originalContentType.Fields);
+
+            Assert.True(definition.Update(originalContentType));
         }
 
-        //        [Theory]
-        //        [InlineData(false)]
-        //        [InlineData(true)]
-        //        public void ShouldReturnValueDependingFromTheFieldComparerResult(bool areEqual)
-        //        {
-        //            var fieldComparer = new Mock<IEqualityComparer<Field>>();
-        //            fieldComparer.Setup(m => m.Equals(It.IsAny<Field>(), It.IsAny<Field>()))
-        //                .Returns(areEqual);
-
-        //            var customComparer = new ContentTypeComparer(fieldComparer.Object);
-
-        //            var firstContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
-        //            var secondContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
-
-        //            var result = customComparer.Equals(firstContentType, secondContentType);
-
-        //            Assert.Equal(areEqual, result);
-        //        }
-
-        public static IEnumerable<object[]> DifferentContentTypes
+        public static IEnumerable<object[]> ContentTypeModificators => new[]
         {
-            get
-            {
-                return new[]
+            new Action<ContentType>[] {ct => ct.SystemProperties.Id = "321"},
+            new Action<ContentType>[] {ct => ct.Name = "NewName"},
+            new Action<ContentType>[] {ct => ct.Description = "NewDescription"},
+            new Action<ContentType>[] {ct => ct.DisplayField = "NewDisplayField"}
+        };
+
+        public static IEnumerable<object[]> FieldsModificators => new[]
+        {
+           new Action<List<Field>>[] { f =>
                 {
-                    new object[]
-                    {
-                        new ContentPair
-                        {
-                            First = ContentTypeBuilder.New.WithId("123").Build(),
-                            Second = ContentTypeBuilder.New.WithId("321").Build()
-                        }
-                    },
-                    new object[]
-                    {
-                        new ContentPair
-                        {
-                            First = ContentTypeBuilder.New.WithDescription("First description").Build(),
-                            Second = ContentTypeBuilder.New.WithDescription("Second description").Build()
-                        }
-                    },
-                    new object[]
-                    {
-                        new ContentPair
-                        {
-                            First = ContentTypeBuilder.New.WithDisplayField("First display").Build(),
-                            Second = ContentTypeBuilder.New.WithDisplayField("Second display").Build()
-                        }
-                    },
-                    new object[]
-                    {
-                        new ContentPair
-                        {
-                            First = ContentTypeBuilder.New.WithName("First name").Build(),
-                            Second = ContentTypeBuilder.New.WithName("Second name").Build()
-                        }
-                    },
-                };
+                    f.Clear();
+                    f.Add(new Field {Id = "NewField1"});
+                }
+            },
+            new Action<List<Field>>[] { f => f[0].Name = "ChangedFieldName" },
+            new Action<List<Field>>[] { f => f[0].Type = "Text" },
+            new Action<List<Field>>[] { f => f[0].Omitted = true },
+            new Action<List<Field>>[] { f => f[0].Localized = true },
+            new Action<List<Field>>[] { f => f[0].Required = true },
+            new Action<List<Field>>[] { f => f[0].LinkType = "Entry" },
+            new Action<List<Field>>[] { f => f[0].Disabled = true },
+            new Action<List<Field>>[] { f => f[0].Validations = new List<IFieldValidator>(){new UniqueValidator()} },
+            new Action<List<Field>>[] { f => f[0].Items = new Schema(){LinkType = "TestLinkType"}},
+            new Action<List<Field>>[] { f => f[0].Items = new Schema(){Type = "TestType"}},
+            new Action<List<Field>>[] { f => f[0].Items = new Schema(){Validations = new List<IFieldValidator>(){new UniqueValidator()}}},
+            new Action<List<Field>>[] { f => f.Clear() },
+            new Action<List<Field>>[] { f => f.AddRange(new List<Field>{ new Field {Id = "NewField1"}, new Field {Id = "NewField2"} }) },
+        };
+
+        private static ContentType CreateDefaultContentType()
+        {
+            return new ContentType
+            {    
+                SystemProperties = new SystemProperties{Id = "123"},
+                Description = "Description",
+                DisplayField = "DisplayField",
+                Name = "Name",
+                Fields = new List<Field>{ new Field{ Id = "field1"} }
+            };
+        }
+
+        private static ContentType CloneContentType(ContentType ct)
+        {
+            return JsonConvert.DeserializeObject<ContentType>(JsonConvert.SerializeObject(ct));
+        }
+
+        [Fact]
+        public void ShouldReturnTrueWhenUpdatingEditorInterface()
+        {
+            var baseEditorInterface = new EditorInterface{ Controls = new List<EditorInterfaceControl>() };
+            var newEditorInterface = CreateDefaultNewEditorInterface();
+            var definition = new ContentTypeDefinition(null, newEditorInterface);
+
+            baseEditorInterface.Controls.AddRange(new List<EditorInterfaceControl>{ new EditorInterfaceControl { FieldId = "EditorField1", WidgetId = "OldWidgetId1" }, new EditorInterfaceControl { FieldId = "EditorField2", WidgetId = "OldWidgetId2" } });
+            
+            Assert.True(definition.Update(baseEditorInterface));
+            for (int i = 0; i < baseEditorInterface.Controls.Count; i++)
+            {
+                Assert.Equal(definition.InferedEditorInterface.Controls[i].FieldId,
+                    baseEditorInterface.Controls[i].FieldId);
+                Assert.Equal(definition.InferedEditorInterface.Controls[i].WidgetId,
+                    baseEditorInterface.Controls[i].WidgetId);
             }
         }
 
-        public static IEnumerable<object[]> SameContentTypes => new[]
+        [Theory]
+        [MemberData(nameof(NotUpdatableEditorControls))]
+        public void ShouldReturnFalseWhenUpdatingSameOrIncorrectEditorInterfaces(List<EditorInterfaceControl> controls)
         {
-            new object[]
+            var baseEditorInterface = new EditorInterface();
+            var newEditorInterface = CreateDefaultNewEditorInterface();
+            var definition = new ContentTypeDefinition(null, newEditorInterface);
+
+            baseEditorInterface.Controls = controls;
+
+            Assert.False(definition.Update(baseEditorInterface));
+        }
+
+        public static IEnumerable<object[]> NotUpdatableEditorControls => new[]
+        {
+            new[]
             {
-                new ContentPair
+                new List<EditorInterfaceControl>
                 {
-                    First = ContentTypeBuilder.New.WithId("123").Build(),
-                    Second = ContentTypeBuilder.New.WithId("123").Build()
+                    new EditorInterfaceControl {FieldId = "EditorField1", WidgetId = "NewWidgetId1"},
+                    new EditorInterfaceControl {FieldId = "EditorField2", WidgetId = "NewWidgetId2"}
                 }
             },
-            new object[]
+            new[]
             {
-                new ContentPair
+                new List<EditorInterfaceControl>
                 {
-                    First = ContentTypeBuilder.New.WithDescription("Description").Build(),
-                    Second = ContentTypeBuilder.New.WithDescription("Description").Build()
+                    new EditorInterfaceControl()
                 }
             },
-            new object[]
+            new[]
             {
-                new ContentPair
+                new List<EditorInterfaceControl>
                 {
-                    First = ContentTypeBuilder.New.WithDisplayField("Display").Build(),
-                    Second = ContentTypeBuilder.New.WithDisplayField("Display").Build()
+                    new EditorInterfaceControl{FieldId = "DifferentField", WidgetId = "DifferentWidgetId"}
                 }
-            },
-            new object[]
+            }, 
+            new[]
             {
-                new ContentPair
+                new List<EditorInterfaceControl>
                 {
-                    First = ContentTypeBuilder.New.WithName("Name").Build(),
-                    Second = ContentTypeBuilder.New.WithName("Name").Build()
+                    new EditorInterfaceControl{FieldId = "EditorField1", WidgetId = "NewWidgetId1"}
                 }
-            },
+            }, 
         };
-    }
 
-    public class ContentPair : IXunitSerializable
-    {
-        public ContentType First { get; set; }
-        public ContentType Second { get; set; }
-
-        public string PrettyPrint()
+        private EditorInterface CreateDefaultNewEditorInterface()
         {
-            return JsonConvert.SerializeObject((First: First, Second: Second), Formatting.Indented);
+            var editor = new EditorInterface{Controls = new List<EditorInterfaceControl>()};
+            editor.Controls.AddRange(new List<EditorInterfaceControl>{ new EditorInterfaceControl { FieldId = "EditorField1", WidgetId = "NewWidgetId1" }, new EditorInterfaceControl { FieldId = "EditorField2", WidgetId = "NewWidgetId2" } });
+            
+            return editor;
         }
 
-        public void Deserialize(IXunitSerializationInfo info)
-        {
-            var jsonFirst = info.GetValue<string>("first");
-            First = JsonConvert.DeserializeObject<ContentType>(jsonFirst);
+//        [Theory]
+//        [InlineData(false)]
+//        [InlineData(true)]
+//        public void ShouldReturnValueDependingFromTheFieldComparerResult(bool areEqual)
+//        {
+//            var fieldComparer = new Mock<IEqualityComparer<Field>>();
+//            fieldComparer.Setup(m => m.Equals(It.IsAny<Field>(), It.IsAny<Field>()))
+//                .Returns(areEqual);
 
-            var jsonSecond = info.GetValue<string>("second");
-            Second = JsonConvert.DeserializeObject<ContentType>(jsonSecond);
-        }
+//            var customComparer = new ContentTypeComparer(fieldComparer.Object);
 
-        public void Serialize(IXunitSerializationInfo info)
-        {
-            var jsonFirst = JsonConvert.SerializeObject(First);
-            info.AddValue("first", jsonFirst, typeof(string));
+//            var firstContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
+//            var secondContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
 
-            var jsonSecond = JsonConvert.SerializeObject(Second);
-            info.AddValue("second", jsonSecond, typeof(string));
-        }
-    }
+//            var result = customComparer.Equals(firstContentType, secondContentType);
 
-    internal class ContentTypeBuilder
-    {
-        private readonly ContentType _currentBuild;
-
-        private ContentTypeBuilder()
-        {
-            _currentBuild = new ContentType
-            {
-                SystemProperties = new SystemProperties(),
-                Fields = new List<Field>(),
-                Description = string.Empty,
-                DisplayField = string.Empty,
-                Name = string.Empty
-            };
-        }
-
-        public static ContentTypeBuilder New => new ContentTypeBuilder();
-
-        public ContentTypeBuilder WithId(string id)
-        {
-            _currentBuild.SystemProperties.Id = id;
-            return this;
-        }
-
-        public ContentTypeBuilder WithDescription(string description)
-        {
-            _currentBuild.Description = description;
-            return this;
-        }
-
-        public ContentTypeBuilder WithDisplayField(string displayField)
-        {
-            _currentBuild.DisplayField = displayField;
-            return this;
-        }
-
-        public ContentTypeBuilder WithFields(params Field[] fields)
-        {
-            _currentBuild.Fields.AddRange(fields);
-            return this;
-        }
-
-        public ContentTypeBuilder WithName(string name)
-        {
-            _currentBuild.Name = name;
-            return this;
-        }
-
-        public ContentType Build()
-        {
-            return new ContentType
-            {
-                SystemProperties = new SystemProperties { Id = _currentBuild.SystemProperties.Id },
-                Fields = new List<Field>(_currentBuild.Fields),
-                Description = string.Copy(_currentBuild.Description),
-                DisplayField = string.Copy(_currentBuild.DisplayField),
-                Name = string.Copy(_currentBuild.Name)
-            };
-        }
+//            Assert.Equal(areEqual, result);
+//        }
     }
 }
