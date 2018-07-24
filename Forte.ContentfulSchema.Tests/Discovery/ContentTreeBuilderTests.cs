@@ -109,9 +109,9 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             ContentTypeDefinition typeDefinition;
             schema.ContentTypeDefinitions.TryGetValue(typeof(DisplayFieldContentType),out typeDefinition);
 
-            Assert.Equal("display-name-content-type", typeDefinition.ContentType.SystemProperties.Id);
-            Assert.Equal("Awesome content type", typeDefinition.ContentType.Description);
-            Assert.Equal(nameof(DisplayFieldContentType.Title).ToCamelcase(), typeDefinition.ContentType.DisplayField);
+            Assert.Equal("display-name-content-type", typeDefinition.InferedContentType.SystemProperties.Id);
+            Assert.Equal("Awesome content type", typeDefinition.InferedContentType.Description);
+            Assert.Equal(nameof(DisplayFieldContentType.Title).ToCamelcase(), typeDefinition.InferedContentType.DisplayField);
         }
 
         [Fact]
@@ -121,12 +121,11 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             ContentTypeDefinition typeDefinition;
             schema.ContentTypeDefinitions.TryGetValue(typeof(ContentTypeWithoutDisplayFieldAttr), out typeDefinition);
 
-            Assert.Equal("content-type-without-display-field-attr",typeDefinition.ContentType.SystemProperties.Id);
-            Assert.Equal(nameof(ContentTypeWithoutDisplayFieldAttr.Title).ToCamelcase(),typeDefinition.ContentType.DisplayField);
+            Assert.Equal("content-type-without-display-field-attr",typeDefinition.InferedContentType.SystemProperties.Id);
+            Assert.Equal(nameof(ContentTypeWithoutDisplayFieldAttr.Title).ToCamelcase(),typeDefinition.InferedContentType.DisplayField);
         }
 
         [ContentType("display-name-content-type", Description = "Awesome content type")]
-        //[ContentTypeDisplayField(nameof(Title))]
         private class DisplayFieldContentType
         {
             [DisplayField]

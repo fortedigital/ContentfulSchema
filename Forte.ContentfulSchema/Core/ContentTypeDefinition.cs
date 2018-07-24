@@ -7,50 +7,50 @@ namespace Forte.ContentfulSchema.Core
 {
     public class ContentTypeDefinition
     {
-        public ContentType ContentType { get; }
-        public EditorInterface EditorInterface { get; }
+        public ContentType InferedContentType { get; }
+        public EditorInterface InferedEditorInterface { get; }
 
-        public ContentTypeDefinition(ContentType contentType, EditorInterface editorInterface)
+        public ContentTypeDefinition(ContentType inferedContentType, EditorInterface inferedEditorInterface)
         {
-            this.ContentType = contentType;
-            this.EditorInterface = editorInterface;
+            this.InferedContentType = inferedContentType;
+            this.InferedEditorInterface = inferedEditorInterface;
         }
 
         public bool Update(ContentType contentType)
         {
             var modified = false;
 
-            if (this.ContentType.SystemProperties.Id != contentType.SystemProperties.Id)
+            if (this.InferedContentType.SystemProperties.Id != contentType.SystemProperties.Id)
             {
-                contentType.SystemProperties.Id = this.ContentType.SystemProperties.Id;
+                contentType.SystemProperties.Id = this.InferedContentType.SystemProperties.Id;
                 modified = true;
             }
 
-            if (this.ContentType.Name != contentType.Name)
+            if (this.InferedContentType.Name != contentType.Name)
             {
-                contentType.Name = this.ContentType.Name;
+                contentType.Name = this.InferedContentType.Name;
                 modified = true;
             }
 
-            if (this.ContentType.Description != contentType.Description)
+            if (this.InferedContentType.Description != contentType.Description)
             {
-                contentType.Description = this.ContentType.Description;
+                contentType.Description = this.InferedContentType.Description;
                 modified = true;
             }
 
-            if (this.ContentType.DisplayField != contentType.DisplayField)
+            if (this.InferedContentType.DisplayField != contentType.DisplayField)
             {
-                contentType.DisplayField = this.ContentType.DisplayField;
+                contentType.DisplayField = this.InferedContentType.DisplayField;
                 modified = true;
             }
 
             var matchedExistingFields = contentType.Fields.GroupJoin(
-                this.ContentType.Fields,
+                this.InferedContentType.Fields,                             
                 field => field.Id,
                 field => field.Id,
                 (field, fields) => new {Existing = field, Updated = fields.SingleOrDefault()});
 
-            var matchedNewFields = this.ContentType.Fields.GroupJoin(
+            var matchedNewFields = this.InferedContentType.Fields.GroupJoin(
                 contentType.Fields,
                 field => field.Id,
                 field => field.Id,
@@ -61,7 +61,7 @@ namespace Forte.ContentfulSchema.Core
                 if (match.Updated == null)
                 {
                     if (match.Existing.Disabled == false)
-                    {
+                    {                           
                         match.Existing.Disabled = true;
                         modified = true;
                     }
@@ -73,7 +73,7 @@ namespace Forte.ContentfulSchema.Core
                 }
                 else
                 {
-                    this.UpdateField(match.Existing, match.Updated, ref modified);
+                    this.UpdateField(match.Existing, match.Updated, ref modified); 
                 }
             }
             
@@ -85,7 +85,7 @@ namespace Forte.ContentfulSchema.Core
             //
             // Cannot add or remove controls (they always have to match content type fields) - use Join not GroupJoin
             //          
-            var matchedControls = editorInterface.Controls.Join(this.EditorInterface.Controls,
+            var matchedControls = editorInterface.Controls.Join(this.InferedEditorInterface.Controls,
                 infered => infered.FieldId,
                 existing => existing.FieldId,
                 (i, e) => new { Existing = i, Updated = e});
@@ -206,7 +206,6 @@ namespace Forte.ContentfulSchema.Core
                         if (Equals(linkTypeValidator, (LinkContentTypeValidator) match) == false) 
                             return false;
                         break;
-                    
                     default:
                         return false;
                 }
