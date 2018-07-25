@@ -1,6 +1,6 @@
 namespace Forte.ContentfulSchema
 {
-    internal static class StringExtensions
+    public static class StringExtensions
     {
         public static string ToCamelcase(this string s)
         {

@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Forte.ContentfulSchema.Discovery
 {
-    internal interface IContentTypeFieldTypeConvention
+    public interface IContentTypeFieldTypeConvention
     {
         string GetFieldType(PropertyInfo property, IDictionary<Type, string> contentTypeIdLookup);
         string GetLinkType(PropertyInfo property, IDictionary<Type, string> contentTypeNameLookup);

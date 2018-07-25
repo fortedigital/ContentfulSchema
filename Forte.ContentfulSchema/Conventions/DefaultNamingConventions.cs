@@ -11,7 +11,7 @@ using Forte.ContentfulSchema.Discovery;
 
 namespace Forte.ContentfulSchema.Conventions
 {
-    class DefaultNamingConventions : IContentTypeFieldNamingConvention, IContentTypeNamingConvention
+    public class DefaultNamingConventions : IContentTypeFieldNamingConvention, IContentTypeNamingConvention
     {
         public string GetFieldId(PropertyInfo property)
         {
@@ -35,7 +35,7 @@ namespace Forte.ContentfulSchema.Conventions
         }
     }
 
-    class ContentTypeFieldTypeConvention : IContentTypeFieldTypeConvention
+    public class ContentTypeFieldTypeConvention : IContentTypeFieldTypeConvention
     {
         public static IContentTypeFieldTypeConvention Default = new ContentTypeFieldTypeConvention(new (Func<PropertyInfo, bool>, string)[]
         {

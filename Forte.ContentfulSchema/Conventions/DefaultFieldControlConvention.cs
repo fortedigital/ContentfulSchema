@@ -8,7 +8,7 @@ using Forte.ContentfulSchema.Discovery;
 
 namespace Forte.ContentfulSchema.Conventions
 {
-    class DefaultFieldControlConvention : IFieldControlConvention
+    public class DefaultFieldControlConvention : IFieldControlConvention
     {
         public static IFieldControlConvention Default = new DefaultFieldControlConvention(new (Func<PropertyInfo, bool> Predicate, string Widget)[]
         {
