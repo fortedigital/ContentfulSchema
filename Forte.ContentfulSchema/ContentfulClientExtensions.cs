@@ -7,7 +7,7 @@ using Contentful.Core.Models;
 using Contentful.Core.Search;
 using Forte.ContentfulSchema.Attributes;
 
-namespace Forte.ContentfulSchema.Extensions
+namespace Forte.ContentfulSchema
 {
     public static class ContentfulClientExtensions
     {
