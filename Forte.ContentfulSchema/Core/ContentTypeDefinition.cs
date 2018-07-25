@@ -33,13 +33,13 @@ namespace Forte.ContentfulSchema.Core
                 modified = true;
             }
 
-            if (this.InferedContentType.Description != contentType.Description)
+            if (AreEmptyOrEqual(this.InferedContentType.Description, contentType.Description) == false)
             {
                 contentType.Description = this.InferedContentType.Description;
                 modified = true;
             }
 
-            if (this.InferedContentType.DisplayField != contentType.DisplayField)
+            if (AreEmptyOrEqual(this.InferedContentType.DisplayField, contentType.DisplayField) == false)
             {
                 contentType.DisplayField = this.InferedContentType.DisplayField;
                 modified = true;
@@ -120,7 +120,7 @@ namespace Forte.ContentfulSchema.Core
 
             if (existing.Disabled != updated.Disabled)
             {
-                existing.Type = updated.Type;
+                existing.Disabled = updated.Disabled;
                 modified = true;
             }
 
@@ -217,15 +217,20 @@ namespace Forte.ContentfulSchema.Core
 
         private static bool Equals(LinkContentTypeValidator first, LinkContentTypeValidator second)
         {
-            if (first.Message != second.Message &&
-                !(String.IsNullOrEmpty(first.Message) && String.IsNullOrEmpty(second.Message)))
-                return false;
-            if (first.Message != second.Message)
+            if (AreEmptyOrEqual(first.Message, second.Message) == false)
                 return false;
             if (first.ContentTypeIds.SequenceEqual(second.ContentTypeIds) == false)
                 return false;
             
             return true;
+        }
+
+        private static bool AreEmptyOrEqual(string a, string b)
+        {
+            if (String.IsNullOrEmpty(a) && String.IsNullOrEmpty(b))
+                return true;
+            
+            return a == b;
         }
     }
 }
