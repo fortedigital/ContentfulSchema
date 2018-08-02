@@ -159,31 +159,12 @@ namespace Forte.ContentfulSchema.Tests.Core
             }, 
         };
 
-        private EditorInterface CreateDefaultNewEditorInterface()
+        private static EditorInterface CreateDefaultNewEditorInterface()
         {
             var editor = new EditorInterface{Controls = new List<EditorInterfaceControl>()};
             editor.Controls.AddRange(new List<EditorInterfaceControl>{ new EditorInterfaceControl { FieldId = "EditorField1", WidgetId = "NewWidgetId1" }, new EditorInterfaceControl { FieldId = "EditorField2", WidgetId = "NewWidgetId2" } });
             
             return editor;
         }
-
-//        [Theory]
-//        [InlineData(false)]
-//        [InlineData(true)]
-//        public void ShouldReturnValueDependingFromTheFieldComparerResult(bool areEqual)
-//        {
-//            var fieldComparer = new Mock<IEqualityComparer<Field>>();
-//            fieldComparer.Setup(m => m.Equals(It.IsAny<Field>(), It.IsAny<Field>()))
-//                .Returns(areEqual);
-
-//            var customComparer = new ContentTypeComparer(fieldComparer.Object);
-
-//            var firstContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
-//            var secondContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
-
-//            var result = customComparer.Equals(firstContentType, secondContentType);
-
-//            Assert.Equal(areEqual, result);
-//        }
     }
 }

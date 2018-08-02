@@ -15,7 +15,7 @@ namespace Forte.ContentfulSchema.Core
         {
             this.ContentTypeLookup = contentTypeLookup;
             this.ClrTypeLookup = contentTypeLookup.ToDictionary(
-                kvp => kvp.Value.ContentType.SystemProperties.Id, 
+                kvp => kvp.Value.InferedContentType.SystemProperties.Id, 
                 kvp => kvp.Key);
         }
     }

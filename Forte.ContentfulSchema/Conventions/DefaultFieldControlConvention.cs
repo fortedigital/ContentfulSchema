@@ -17,16 +17,16 @@ namespace Forte.ContentfulSchema.Conventions
             (prop => typeof(IMarkdownString).IsAssignableFrom(prop.PropertyType), SystemWidgetIds.Markdown)            
         });
         
-        private readonly IEnumerable<(Func<PropertyInfo, bool> Predicate, string Widget)> conventions;
+        private readonly IEnumerable<(Func<PropertyInfo, bool> Predicate, string Widget)> _conventions;
 
         public DefaultFieldControlConvention(IEnumerable<(Func<PropertyInfo, bool> Predicate, string Widget)> conventions)
         {
-            this.conventions = conventions;
+            this._conventions = conventions;
         }
                
         public string GetWidgetId(PropertyInfo property)
         {
-            return this.conventions.FirstOrDefault(c => c.Predicate(property)).Widget;
+            return this._conventions.FirstOrDefault(c => c.Predicate(property)).Widget;
         }
     }
 }

@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Forte.ContentfulSchema.Attributes;
-using Forte.ContentfulSchema.Discovery;
-using Forte.ContentfulSchema.Core;
 using Forte.ContentfulSchema.Conventions;
+using Forte.ContentfulSchema.Core;
+using Forte.ContentfulSchema.Discovery;
 using Xunit;
 
 namespace Forte.ContentfulSchema.Tests.Discovery
@@ -13,21 +11,19 @@ namespace Forte.ContentfulSchema.Tests.Discovery
     public class ContentTreeBuilderTests
     {
         private readonly IEnumerable<Type> _testTypes;
-        private SchemaDiscoveryService _discoveryService;
+        private readonly SchemaDiscoveryService _discoveryService;
 
         public ContentTreeBuilderTests()
         {
             _testTypes = new[]
             {
-                typeof(BaseTypeOne),
-                typeof(BaseTypeTwo),
-                typeof(ChildTypeOne),
-                typeof(ChildTypeTwo),
-                typeof(GrandChildOne),
+                typeof(EmptyContentType),
+                typeof(ContentTypeWithString),
+                typeof(ChildOfEmptyContentType),
+                typeof(ContentTypeWithInheritedProperty),
+                typeof(GrandChildOfEmptyContentType),
                 typeof(NotContentType),
                 typeof(CustomizedContentType),
-                typeof(InheritedContentType),
-                typeof(IndirectlyInheritedContentType),
             };
             var validationProviders = new[]
             {
@@ -107,7 +103,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
         {
             var schema = _discoveryService.DiscoverSchema(new List<Type>() { typeof(DisplayFieldContentType) });
             ContentTypeDefinition typeDefinition;
-            schema.ContentTypeDefinitions.TryGetValue(typeof(DisplayFieldContentType),out typeDefinition);
+            schema.ContentTypeLookup.TryGetValue(typeof(DisplayFieldContentType),out typeDefinition);
 
             Assert.Equal("display-name-content-type", typeDefinition.InferedContentType.SystemProperties.Id);
             Assert.Equal("Awesome content type", typeDefinition.InferedContentType.Description);
@@ -119,7 +115,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
         {
             var schema = _discoveryService.DiscoverSchema(new[] { typeof(ContentTypeWithoutDisplayFieldAttr) });
             ContentTypeDefinition typeDefinition;
-            schema.ContentTypeDefinitions.TryGetValue(typeof(ContentTypeWithoutDisplayFieldAttr), out typeDefinition);
+            schema.ContentTypeLookup.TryGetValue(typeof(ContentTypeWithoutDisplayFieldAttr), out typeDefinition);
 
             Assert.Equal("content-type-without-display-field-attr",typeDefinition.InferedContentType.SystemProperties.Id);
             Assert.Equal(nameof(ContentTypeWithoutDisplayFieldAttr.Title).ToCamelcase(),typeDefinition.InferedContentType.DisplayField);

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
+[assembly:InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace Forte.ContentfulSchema.Core
 {
