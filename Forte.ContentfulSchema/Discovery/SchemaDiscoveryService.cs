@@ -73,8 +73,12 @@ namespace Forte.ContentfulSchema.Discovery
 
         private IEnumerable<FieldDefinition> GetContentTypeFieldDefinitions(Type clrType, IDictionary<Type, string> contentTypeNameLookup)
         {
-            var properties = clrType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-
+            var properties = clrType
+                .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                .Select(p => (p, p.GetCustomAttribute<DisplayAttribute>()?.Order ?? 0))
+                .OrderBy(x => x.Item2)
+                .Select(x => x.Item1);
+            
             foreach (var property in properties)
             {
                 if (this.propertyIgnorePredicates.Any(p => p(property)))
