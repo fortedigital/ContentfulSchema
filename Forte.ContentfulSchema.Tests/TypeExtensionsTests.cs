@@ -78,12 +78,23 @@ namespace Forte.ContentfulSchema.Tests
         }
 
         [Fact]
-        public void GetEnumerableElementTypeShouldReturnStringType()
+        public void GetEnumerableElementTypeShouldReturnStringTypeForStringArrayType()
         {
             var testType = new string[] { }.GetType();
             var enumerableElementType = testType.GetEnumerableElementType();
+            var expectedType = typeof(string);
 
-            Assert.Equal(typeof(string), enumerableElementType);
+            Assert.Equal(expectedType, enumerableElementType);
+        }
+
+        [Fact]
+        public void GetEnumerableElementTypeShouldReturnIntTypeForIntArrayType()
+        {
+            var testType = new int[] { }.GetType();
+            var enumerableElementType = testType.GetEnumerableElementType();
+            var expectedType = typeof(int);
+
+            Assert.Equal(expectedType, enumerableElementType);
         }
 
         [Fact]

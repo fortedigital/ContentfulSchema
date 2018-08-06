@@ -17,7 +17,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
         [Fact]
         public void ShouldReturnSlugEditorWidgetIdForSlugNamedProperty()
         {
-            var propInfo = typeof(ClassWithSlugProperty).GetProperties().First();
+            var propInfo = GetPropertyInfoOfFirstProperty<ClassWithSlugProperty>();
             var widgetId = _defaultConvention.GetWidgetId(propInfo);
 
             Assert.Equal(SystemWidgetIds.SlugEditor,widgetId);
@@ -26,7 +26,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
         [Fact]
         public void ShouldReturnMultipleLineEditorWidgetIdForPropOfILongStringType()
         {
-            var propInfo = typeof(ClassWithILongProperty).GetProperties().First();
+            var propInfo = GetPropertyInfoOfFirstProperty<ClassWithILongProperty>();
             var widgetId = _defaultConvention.GetWidgetId(propInfo);
 
             Assert.Equal(SystemWidgetIds.MultipleLine,widgetId);
@@ -35,7 +35,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
         [Fact]
         public void ShouldReturnMarkdownWidgetIdForPropOfIMarkdownStringType()
         {
-            var propInfo = typeof(ClassWithIMarkdownString).GetProperties().First();
+            var propInfo = GetPropertyInfoOfFirstProperty<ClassWithIMarkdownString>();
             var widgetId = _defaultConvention.GetWidgetId(propInfo);
 
             Assert.Equal(SystemWidgetIds.Markdown,widgetId);
@@ -49,10 +49,15 @@ namespace Forte.ContentfulSchema.Tests.Conventions
                 (p => p.Name.Equals("CustomProp"), SystemWidgetIds.Checkbox)
             };
             var convention = new DefaultFieldControlConvention(conventions);
-            var propInfo = typeof(ClassForCustomConvention).GetProperties().First();
+            var propInfo = GetPropertyInfoOfFirstProperty<ClassForCustomConvention>();
             var widgetId = convention.GetWidgetId(propInfo);
 
             Assert.Equal(SystemWidgetIds.Checkbox, widgetId);
+        }
+
+        private static PropertyInfo GetPropertyInfoOfFirstProperty<T>()
+        {
+            return typeof(T).GetProperties().First();
         }
 
         private class ClassWithSlugProperty

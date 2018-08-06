@@ -67,7 +67,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(pair.TestPropertyInfo, ContentTypeNameLookUp);
 
-            Assert.Equal(pair.TypeName,fieldType);
+            Assert.Equal(pair.TypeName, fieldType);
         }
 
         [Theory]
@@ -80,13 +80,15 @@ namespace Forte.ContentfulSchema.Tests.Conventions
             Assert.Equal(SystemFieldTypes.Link, fieldType);
         }
 
+        // TODO Add tests for GetLinkType and GetArrayType
+
         [Fact]
         public void ShouldReturnArrayTypeForListOfBasicTypesProperty()
         {
             var testType = typeof(ContentTypeWithStringList);
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(testType.GetProperties().First(), ContentTypeNameLookUp);
-                                                           
+
             Assert.Equal(SystemFieldTypes.Array, fieldType);
         }
 
@@ -96,8 +98,8 @@ namespace Forte.ContentfulSchema.Tests.Conventions
             var testType = typeof(ContentTypeWithStringArray);
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(testType.GetProperties().First(), ContentTypeNameLookUp);
-                                                           
-            Assert.Equal(SystemFieldTypes.Symbol, fieldType);
+
+            Assert.Equal(SystemFieldTypes.Array, fieldType);
         }
 
         [Fact]
@@ -106,7 +108,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
             var testType = typeof(ContentTypeWithGenericArray);
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(testType.GetProperties().First(), ContentTypeNameLookUp);
-                                                           
+
             Assert.Equal(SystemFieldTypes.Array, fieldType);
         }
 
@@ -116,7 +118,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
             var testType = typeof(ContentTypeWithGenericList);
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(testType.GetProperties().First(), ContentTypeNameLookUp);
-                                                           
+
             Assert.Equal(SystemFieldTypes.Array, fieldType);
         }
     }

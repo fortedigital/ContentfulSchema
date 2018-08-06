@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 [assembly:InternalsVisibleTo("DynamicProxyGenAssembly2")]
+[assembly:InternalsVisibleTo("Forte.ContentfulSchema.Tests")]
 
 namespace Forte.ContentfulSchema.Core
 {

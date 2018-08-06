@@ -7,6 +7,7 @@ using System.Reflection;
 using Contentful.Core.Models;
 using Forte.ContentfulSchema.Attributes;
 using Forte.ContentfulSchema.Conventions;
+using Forte.ContentfulSchema.Core;
 using Forte.ContentfulSchema.Discovery;
 using Moq;
 using Newtonsoft.Json;
@@ -71,7 +72,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
                 new[] { new LinkContentTypeValidatorProvider() });
             var schema = service.DiscoverSchema(new [] {typeof(ContentTypeWithBool)});
 
-            var name = schema.ContentTypeLookup.First().Value.InferedContentType.Fields.First().Name;
+            var name = GetSchemaFirstField(schema).Name;
             Assert.Equal("FakeFieldName",name);
         }
 
@@ -87,7 +88,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
                 new[] { new LinkContentTypeValidatorProvider() });
             var schema = service.DiscoverSchema(new [] {typeof(TypeWithIgnoredProps)});
 
-            Assert.Equal(0,schema.ContentTypeLookup.First().Value.InferedContentType.Fields.Count);
+            Assert.Empty(schema.ContentTypeLookup.First().Value.InferedContentType.Fields);
         }
 
         [Fact]
@@ -95,7 +96,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
         {
             var schemaDiscoveryService = CreateDefaultDiscoveryService();
             var schemaDefinition = schemaDiscoveryService.DiscoverSchema(new[] { typeof(TypeWithObsoleteProp) });
-            var isDisabled = schemaDefinition.ContentTypeLookup.First().Value.InferedContentType.Fields.First().Disabled;
+            var isDisabled = GetSchemaFirstField(schemaDefinition).Disabled;
             
             Assert.True(isDisabled);
         }
@@ -105,7 +106,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
         {
             var schemaDiscoveryService = CreateDefaultDiscoveryService();
             var schemaDefinition = schemaDiscoveryService.DiscoverSchema(new[] { typeof(TypeWithRequiredProp) });
-            var isRequired = schemaDefinition.ContentTypeLookup.First().Value.InferedContentType.Fields.First().Required;
+            var isRequired = GetSchemaFirstField(schemaDefinition).Required;
             
             Assert.True(isRequired);
         }
@@ -115,7 +116,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
         {
             var schemaDiscoveryService = CreateDefaultDiscoveryService();
             var schemaDefinition = schemaDiscoveryService.DiscoverSchema(new[] { typeof(TypeWithLocalizableProp) });
-            var isLocalizable = schemaDefinition.ContentTypeLookup.First().Value.InferedContentType.Fields.First().Localized;
+            var isLocalizable = GetSchemaFirstField(schemaDefinition).Localized;
             
             Assert.True(isLocalizable);
         }
@@ -127,7 +128,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             var schemaDefinition = service.DiscoverSchema(new []{ typeof(EmptyContentType) });
             var inferredContentType = schemaDefinition.ContentTypeLookup[typeof(EmptyContentType)].InferedContentType;
 
-            Assert.Equal(0, inferredContentType.Fields.Count);
+            Assert.Empty(inferredContentType.Fields);
         }
 
         [Fact]
@@ -138,6 +139,11 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             var exists = schemaDefinition.ContentTypeLookup.ContainsKey(typeof(NotContentType));
 
             Assert.False(exists);
+        }
+
+        private Field GetSchemaFirstField(ContentSchemaDefinition schemaDefinition)
+        {
+            return schemaDefinition.ContentTypeLookup.First().Value.InferedContentType.Fields.First();
         }
 
         [ContentType("type-with-ignored-props")]
