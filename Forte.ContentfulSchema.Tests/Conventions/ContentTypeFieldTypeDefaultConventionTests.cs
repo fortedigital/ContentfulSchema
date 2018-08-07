@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.Conventions;
-using Forte.ContentfulSchema.Tests;
 using Xunit;
 
 namespace Forte.ContentfulSchema.Tests.Conventions
@@ -62,7 +61,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
 
         [Theory]
         [MemberData(nameof(PropertyInfoAndNamesPairs))]
-        public void ShouldReturnAdequateFieldTypeForProperty(PropertyInfoAndNamePair pair)
+        public void GetFieldTypeShouldReturnAdequateFieldTypeForProperty(PropertyInfoAndNamePair pair)
         {
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(pair.TestPropertyInfo, ContentTypeNameLookUp);
@@ -72,7 +71,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
 
         [Theory]
         [MemberData(nameof(TypesWithLinks))]
-        public void ShouldReturnLinkTypeForTypesWithLinks(Type testType)
+        public void GetFieldTypeShouldReturnLinkTypeForTypesWithLinks(Type testType)
         {
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(testType.GetProperties().First(), ContentTypeNameLookUp);
@@ -80,10 +79,8 @@ namespace Forte.ContentfulSchema.Tests.Conventions
             Assert.Equal(SystemFieldTypes.Link, fieldType);
         }
 
-        // TODO Add tests for GetLinkType and GetArrayType
-
         [Fact]
-        public void ShouldReturnArrayTypeForListOfBasicTypesProperty()
+        public void GetFieldTypeShouldReturnArrayTypeForListOfBasicTypesProperty()
         {
             var testType = typeof(ContentTypeWithStringList);
             var convention = ContentTypeFieldTypeConvention.Default;
@@ -93,7 +90,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
         }
 
         [Fact]
-        public void ShouldReturnSymbolTypeForArrayOfBasicTypesProperty()
+        public void GetFieldTypeShouldReturnArrayTypeForArrayOfBasicTypesProperty()
         {
             var testType = typeof(ContentTypeWithStringArray);
             var convention = ContentTypeFieldTypeConvention.Default;
@@ -103,7 +100,7 @@ namespace Forte.ContentfulSchema.Tests.Conventions
         }
 
         [Fact]
-        public void ShouldReturnArrayTypeForArrayOfGenericTypesProperty()
+        public void GetFieldTypeShouldReturnArrayTypeForArrayOfGenericTypesProperty()
         {
             var testType = typeof(ContentTypeWithGenericArray);
             var convention = ContentTypeFieldTypeConvention.Default;
@@ -113,13 +110,66 @@ namespace Forte.ContentfulSchema.Tests.Conventions
         }
 
         [Fact]
-        public void ShouldReturnArrayTypeForListOfGenericTypesProperty()
+        public void GetFieldTypeShouldReturnArrayTypeForListOfGenericTypesProperty()
         {
             var testType = typeof(ContentTypeWithGenericList);
             var convention = ContentTypeFieldTypeConvention.Default;
             var fieldType = convention.GetFieldType(testType.GetProperties().First(), ContentTypeNameLookUp);
 
             Assert.Equal(SystemFieldTypes.Array, fieldType);
+        }
+
+        [Fact]
+        public void GetLinkTypeShouldReturnNullForNonLinkProperty()
+        {
+            var testProperty = typeof(ContentTypeWithString).GetProperties().First();
+            var convention = ContentTypeFieldTypeConvention.Default;
+            var linkType = convention.GetLinkType(testProperty, ContentTypeNameLookUp);
+
+            Assert.Null(linkType);
+        }
+
+        [Fact]
+        public void GetLinkTypeShouldReturnAssetTypeForAssetProperty()
+        {
+            var testProperty = typeof(ContentTypeWithAsset).GetProperties().First();
+            var convention = ContentTypeFieldTypeConvention.Default;
+            var linkType = convention.GetLinkType(testProperty, ContentTypeNameLookUp);
+
+            Assert.Equal(SystemLinkTypes.Asset,linkType);
+        }
+
+        [Fact]
+        public void GetArrayTypeShouldReturnTupleOfSymbolAndEntryForArrayOfStringsProperty()
+        {
+            var testProperty = typeof(ContentTypeWithStringArray).GetProperties().First();
+            var convention = ContentTypeFieldTypeConvention.Default;
+            var (type, linkType) = convention.GetArrayType(testProperty, ContentTypeNameLookUp); 
+
+            Assert.Equal(SystemFieldTypes.Symbol, type);
+            Assert.Null(linkType);
+        }
+
+        [Fact]
+        public void GetArrayTypeShouldReturnTupleOfLinkAndEntryForListOfContentTypesProperty()
+        {
+            var testProperty = typeof(ContentTypeWithGenericList).GetProperties().First();
+            var convention = ContentTypeFieldTypeConvention.Default;
+            var (type, linkType) = convention.GetArrayType(testProperty, ContentTypeNameLookUp); 
+
+            Assert.Equal(SystemFieldTypes.Link, type);
+            Assert.Equal(SystemLinkTypes.Entry,linkType);
+        }
+
+        [Fact]
+        public void GetArrayTypeShouldReturnTupleOfSymbolAndNullForListOfStringsProperty()
+        {
+            var testProperty = typeof(ContentTypeWithStringList).GetProperties().First();
+            var convention = ContentTypeFieldTypeConvention.Default;
+            var (type, linkType) = convention.GetArrayType(testProperty, ContentTypeNameLookUp); 
+
+            Assert.Equal(SystemFieldTypes.Symbol, type);
+            Assert.Null(linkType);
         }
     }
 }

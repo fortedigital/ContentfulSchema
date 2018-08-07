@@ -39,7 +39,6 @@ namespace Forte.ContentfulSchema.Conventions
             if (IsContentType(property.PropertyType, contentTypeIdLookup))
                 return SystemFieldTypes.Link;
 
-
             return this._conventions.First(c => c.Predicate(property)).ContentfulType;
         }
 
@@ -49,15 +48,14 @@ namespace Forte.ContentfulSchema.Conventions
             {
                 return SystemLinkTypes.Asset;
             }
-            else
-            {
-                return SystemLinkTypes.Entry;
-            }            
+            return IsContentType(property.PropertyType, contentTypeNameLookup) ? SystemLinkTypes.Entry : null;
         }
 
         public (string Type, string LinkType) GetArrayType(PropertyInfo property, IDictionary<Type, string> contentTypeNameLookup)
         {
-            var elementType = property.PropertyType.GetGenericArguments()[0];
+            var propertyType = property.PropertyType;
+            var elementType = propertyType.IsGenericType ? propertyType.GetGenericArguments()[0] : propertyType.GetElementType();
+
             if (IsContentType(elementType, contentTypeNameLookup) || (elementType.IsGenericType(typeof(Entry<>))))
             {
                 return (SystemFieldTypes.Link, SystemLinkTypes.Entry);

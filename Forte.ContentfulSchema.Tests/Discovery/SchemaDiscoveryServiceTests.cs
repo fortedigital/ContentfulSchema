@@ -17,20 +17,6 @@ namespace Forte.ContentfulSchema.Tests.Discovery
 {
     public class SchemaDiscoveryServiceTests
     {
-        private static SchemaDiscoveryService CreateDefaultDiscoveryService()
-        {
-            var namingConventions = new DefaultNamingConventions();
-
-            return new SchemaDiscoveryService(
-                namingConventions,
-                namingConventions,
-                DefaultPropertyIgnoreConvention.Default,
-                ContentTypeFieldTypeConvention.Default,
-                DefaultFieldControlConvention.Default,
-                new[] { new LinkContentTypeValidatorProvider() }
-            );
-        }
-
         [Fact]
         public void SchemaDiscoveryServiceUsesContentTypeNamingConvention()
         {
@@ -141,9 +127,59 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             Assert.False(exists);
         }
 
+        [Fact]
+        public void ShouldGatherContentTypeIdDisplayFieldAndDescriptionFromAttributes()
+        {
+            var service = CreateDefaultDiscoveryService();
+            var schema = service.DiscoverSchema(new List<Type>() { typeof(DisplayFieldContentType) });
+            var typeDefinition = schema.ContentTypeLookup[typeof(DisplayFieldContentType)];
+
+            Assert.Equal("display-name-content-type", typeDefinition.InferedContentType.SystemProperties.Id);
+            Assert.Equal("Awesome content type", typeDefinition.InferedContentType.Description);
+            Assert.Equal(nameof(DisplayFieldContentType.Title).ToCamelcase(), typeDefinition.InferedContentType.DisplayField);
+        }
+
+        [Fact]
+        public void ShouldGetDisplayFieldFromFirstPropertyWhenDisplayFieldAttributeIsMissing()
+        {
+            var service = CreateDefaultDiscoveryService();
+            var schema = service.DiscoverSchema(new[] { typeof(ContentTypeWithoutDisplayFieldAttr) });
+            var typeDefinition = schema.ContentTypeLookup[typeof(ContentTypeWithoutDisplayFieldAttr)];
+
+            Assert.Equal("content-type-without-display-field-attr",typeDefinition.InferedContentType.SystemProperties.Id);
+            Assert.Equal(nameof(ContentTypeWithoutDisplayFieldAttr.Title).ToCamelcase(),typeDefinition.InferedContentType.DisplayField);
+        }
+
+        [ContentType("display-name-content-type", Description = "Awesome content type")]
+        private class DisplayFieldContentType
+        {
+            [DisplayField]
+            public string Title { get; set; }
+        }
+
+        [ContentType("content-type-without-display-field-attr")]
+        private class ContentTypeWithoutDisplayFieldAttr
+        {
+            public string Title { get; set; }
+        }
+
         private Field GetSchemaFirstField(ContentSchemaDefinition schemaDefinition)
         {
             return schemaDefinition.ContentTypeLookup.First().Value.InferedContentType.Fields.First();
+        }
+
+        private static SchemaDiscoveryService CreateDefaultDiscoveryService()
+        {
+            var namingConventions = new DefaultNamingConventions();
+
+            return new SchemaDiscoveryService(
+                namingConventions,
+                namingConventions,
+                DefaultPropertyIgnoreConvention.Default,
+                ContentTypeFieldTypeConvention.Default,
+                DefaultFieldControlConvention.Default,
+                new[] { new LinkContentTypeValidatorProvider() }
+            );
         }
 
         [ContentType("type-with-ignored-props")]

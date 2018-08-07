@@ -56,7 +56,7 @@ namespace Forte.ContentfulSchema.Tests.Core
             baseEditorInterface.Controls.AddRange(new List<EditorInterfaceControl>{ new EditorInterfaceControl { FieldId = "EditorField1", WidgetId = "OldWidgetId1" }, new EditorInterfaceControl { FieldId = "EditorField2", WidgetId = "OldWidgetId2" } });
             
             Assert.True(definition.Update(baseEditorInterface));
-            for (int i = 0; i < baseEditorInterface.Controls.Count; i++)
+            for (var i = 0; i < baseEditorInterface.Controls.Count; i++)
             {
                 Assert.Equal(definition.InferedEditorInterface.Controls[i].FieldId,
                     baseEditorInterface.Controls[i].FieldId);
