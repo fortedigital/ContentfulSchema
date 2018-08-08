@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using Contentful.Core.Models;
 using Forte.ContentfulSchema.Attributes;
 using Forte.ContentfulSchema.Conventions;
@@ -18,7 +19,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
     public class SchemaDiscoveryServiceTests
     {
         [Fact]
-        public void SchemaDiscoveryServiceUsesContentTypeNamingConvention()
+        public void SchemaDiscoveryServiceUsesProvidedContentTypeNamingConvention()
         {
             var mockContentTypeNamingConvention = new Mock<IContentTypeNamingConvention>();
             var typeForMock = typeof(ContentTypeWithBool);
@@ -33,13 +34,13 @@ namespace Forte.ContentfulSchema.Tests.Discovery
                 DefaultFieldControlConvention.Default,
                 new[] { new LinkContentTypeValidatorProvider() });
             var schema = service.DiscoverSchema(new [] { typeof(ContentTypeWithBool) });
-
             var name = schema.ContentTypeLookup.First().Value.InferedContentType.Name;
+
             Assert.Equal("FakeName",name);
         }
 
         [Fact]
-        public void SchemaDiscoveryServiceUsesContentTypeFieldNamingConvention()
+        public void SchemaDiscoveryServiceUsesProvidedContentTypeFieldNamingConvention()
         {
             var mockContentTypeNamingConvention = new Mock<IContentTypeNamingConvention>();
             mockContentTypeNamingConvention.Setup(m => m.GetContentTypeDescription(It.IsAny<Type>())).Returns("FakeName");
@@ -57,21 +58,39 @@ namespace Forte.ContentfulSchema.Tests.Discovery
                 DefaultFieldControlConvention.Default,
                 new[] { new LinkContentTypeValidatorProvider() });
             var schema = service.DiscoverSchema(new [] {typeof(ContentTypeWithBool)});
-
             var name = GetSchemaFirstField(schema).Name;
+
             Assert.Equal("FakeFieldName",name);
+        }
+
+        [Fact]
+        public void SchemaDiscoveryServiceUsesProvidedFieldControlConvention()
+        {
+            var expectedFieldName = typeof(ContentTypeWithBool).GetProperties().First().Name.ToCamelcase();
+            var mockControlConvention = new Mock<IFieldControlConvention>();
+            mockControlConvention.Setup(m => m.GetWidgetId(It.IsAny<PropertyInfo>())).Returns("FakeWidgetId");
+
+            var service = new SchemaDiscoveryService(
+                new DefaultNamingConventions(), 
+                new DefaultNamingConventions(), 
+                DefaultPropertyIgnoreConvention.Default,
+                ContentTypeFieldTypeConvention.Default,
+                mockControlConvention.Object,
+                new[] { new LinkContentTypeValidatorProvider() });
+
+            var schema = service.DiscoverSchema(new [] {typeof(ContentTypeWithBool)});
+            var inferredEditorInterfaceControl = schema.ContentTypeLookup[typeof(ContentTypeWithBool)].InferedEditorInterface.Controls.First();
+            var controlWidgetId = inferredEditorInterfaceControl.WidgetId;
+            var controlFieldId = inferredEditorInterfaceControl.FieldId;
+
+            Assert.Equal("FakeWidgetId", controlWidgetId);
+            Assert.Equal(expectedFieldName, controlFieldId);
         }
 
         [Fact]
         public void SchemaDiscoveryServiceUsesContentTypePropertyIgnorePredicates()
         {
-            var service = new SchemaDiscoveryService(
-                new DefaultNamingConventions(),
-                new DefaultNamingConventions(),
-                DefaultPropertyIgnoreConvention.Default,
-                ContentTypeFieldTypeConvention.Default,
-                DefaultFieldControlConvention.Default,
-                new[] { new LinkContentTypeValidatorProvider() });
+            var service = CreateDefaultDiscoveryService();
             var schema = service.DiscoverSchema(new [] {typeof(TypeWithIgnoredProps)});
 
             Assert.Empty(schema.ContentTypeLookup.First().Value.InferedContentType.Fields);
@@ -108,7 +127,7 @@ namespace Forte.ContentfulSchema.Tests.Discovery
         }
 
         [Fact]
-        public void ShouldCreateCorrectSchemaForEmptyContentType()
+        public void ShouldCreateWithNoFieldsForEmptyContentType()
         {
             var service = CreateDefaultDiscoveryService();
             var schemaDefinition = service.DiscoverSchema(new []{ typeof(EmptyContentType) });
@@ -133,10 +152,14 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             var service = CreateDefaultDiscoveryService();
             var schema = service.DiscoverSchema(new List<Type>() { typeof(DisplayFieldContentType) });
             var typeDefinition = schema.ContentTypeLookup[typeof(DisplayFieldContentType)];
+            var expectedName = nameof(DisplayFieldContentType.Title).ToCamelcase();
+            var id = typeDefinition.InferedContentType.SystemProperties.Id;
+            var description = typeDefinition.InferedContentType.Description;
+            var displayField = typeDefinition.InferedContentType.DisplayField;
 
-            Assert.Equal("display-name-content-type", typeDefinition.InferedContentType.SystemProperties.Id);
-            Assert.Equal("Awesome content type", typeDefinition.InferedContentType.Description);
-            Assert.Equal(nameof(DisplayFieldContentType.Title).ToCamelcase(), typeDefinition.InferedContentType.DisplayField);
+            Assert.Equal("display-name-content-type", id);
+            Assert.Equal("Awesome content type", description);
+            Assert.Equal(expectedName, displayField);
         }
 
         [Fact]
@@ -145,9 +168,12 @@ namespace Forte.ContentfulSchema.Tests.Discovery
             var service = CreateDefaultDiscoveryService();
             var schema = service.DiscoverSchema(new[] { typeof(ContentTypeWithoutDisplayFieldAttr) });
             var typeDefinition = schema.ContentTypeLookup[typeof(ContentTypeWithoutDisplayFieldAttr)];
+            var expectedName = nameof(ContentTypeWithoutDisplayFieldAttr.Title).ToCamelcase();
+            var id = typeDefinition.InferedContentType.SystemProperties.Id;
+            var displayField = typeDefinition.InferedContentType.DisplayField;
 
-            Assert.Equal("content-type-without-display-field-attr",typeDefinition.InferedContentType.SystemProperties.Id);
-            Assert.Equal(nameof(ContentTypeWithoutDisplayFieldAttr.Title).ToCamelcase(),typeDefinition.InferedContentType.DisplayField);
+            Assert.Equal("content-type-without-display-field-attr", id);
+            Assert.Equal(expectedName, displayField);
         }
 
         [ContentType("display-name-content-type", Description = "Awesome content type")]
