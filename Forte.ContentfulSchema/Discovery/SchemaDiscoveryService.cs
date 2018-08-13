@@ -11,7 +11,7 @@ using Forte.ContentfulSchema.Core;
 
 namespace Forte.ContentfulSchema.Discovery
 {
-    class SchemaDiscoveryService
+    public class SchemaDiscoveryService
     {
         private readonly IContentTypeNamingConvention _contentTypeNamingConvention;
         private readonly IEnumerable<Func<PropertyInfo, bool>> _propertyIgnorePredicates;

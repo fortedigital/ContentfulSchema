@@ -9,16 +9,16 @@ namespace Forte.ContentfulSchema.Core
 {
     public class ContentSchemaSynchronizationService
     {
-        private readonly IContentfulManagementClient _contentfulManagementClient;
+        private readonly IContentfulManagementClient contentfulManagementClient;
 
         public ContentSchemaSynchronizationService(IContentfulManagementClient contentfulManagementClient)
         {
-            this._contentfulManagementClient = contentfulManagementClient;
+            this.contentfulManagementClient = contentfulManagementClient;
         }
 
         public async Task UpdateSchema(IEnumerable<ContentTypeDefinition> inferedDefinitions)
         {
-            var existingContentTypes = await this._contentfulManagementClient.GetContentTypes();
+            var existingContentTypes = await this.contentfulManagementClient.GetContentTypes();
 
             var matchedTypes = inferedDefinitions.GroupJoin(existingContentTypes,
                 infered => infered.InferedContentType.SystemProperties.Id,
@@ -46,7 +46,7 @@ namespace Forte.ContentfulSchema.Core
             var contentType = syncItem.ExistingContentType;
             if (contentType == null)
             {
-                //contentType = await this.CreateOrUpdateContentType(syncItem.InferedContentTypeDefinition.ContentType);
+                contentType = await this.CreateOrUpdateContentType(syncItem.InferedContentTypeDefinition.InferedContentType);
             }
             else
             {
@@ -54,7 +54,7 @@ namespace Forte.ContentfulSchema.Core
 
                 if (contenTypeModified)
                 {
-                    //contentType = await this.CreateOrUpdateContentType(syncItem.ExistingContentType);
+                    contentType = await this.CreateOrUpdateContentType(syncItem.ExistingContentType);
                 }
             }
 
@@ -64,25 +64,25 @@ namespace Forte.ContentfulSchema.Core
         private async Task SyncEditorInterface(ContentType contentType,
             (ContentTypeDefinition InferedContentTypeDefinition, ContentType ExistingContentType) syncItem)
         {
-            var editorInterface = await this._contentfulManagementClient.GetEditorInterface(
+            var editorInterface = await this.contentfulManagementClient.GetEditorInterface(
                 contentType.SystemProperties.Id);
 
             var editorInterfaceModified = syncItem.InferedContentTypeDefinition.Update(editorInterface);
 
             if (editorInterfaceModified)
             {
-                /*this.contentfulManagementClient.UpdateEditorInterface(
+                this.contentfulManagementClient.UpdateEditorInterface(
                     editorInterface,
                     contentType.SystemProperties.Id,
-                    editorInterface.SystemProperties.Version.Value)*/;
+                    editorInterface.SystemProperties.Version.Value);
             }
         }
 
         private async Task<ContentType> CreateOrUpdateContentType(ContentType contentType)
         {
-            contentType = await this._contentfulManagementClient.CreateOrUpdateContentType(contentType);
+            contentType = await this.contentfulManagementClient.CreateOrUpdateContentType(contentType, version: contentType.SystemProperties.Version);
             
-            await this._contentfulManagementClient.ActivateContentType(
+            await this.contentfulManagementClient.ActivateContentType(
                 contentType.SystemProperties.Id,
                 contentType.SystemProperties.Version.Value);
             

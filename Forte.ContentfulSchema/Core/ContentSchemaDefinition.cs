@@ -9,6 +9,7 @@ namespace Forte.ContentfulSchema.Core
         public readonly IReadOnlyDictionary<Type, ContentTypeDefinition> ContentTypeLookup;
 
         public IEnumerable<ContentTypeDefinition> ContentTypeDefinitions => this.ContentTypeLookup.Values;
+        
         public IReadOnlyDictionary<string, Type> ClrTypeLookup { get; }
 
         public ContentSchemaDefinition(IReadOnlyDictionary<Type, ContentTypeDefinition> contentTypeLookup)
