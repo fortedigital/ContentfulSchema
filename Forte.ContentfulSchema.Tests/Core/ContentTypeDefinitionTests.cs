@@ -78,9 +78,9 @@ namespace Forte.ContentfulSchema.Tests.Core
             Assert.True(definition.Update(baseEditorInterface));
             for (var i = 0; i < baseEditorInterface.Controls.Count; i++)
             {
-                Assert.Equal(definition.InferedEditorInterface.Controls[i].FieldId,
+                Assert.Equal(definition.InferredEditorInterface.Controls[i].FieldId,
                     baseEditorInterface.Controls[i].FieldId);
-                Assert.Equal(definition.InferedEditorInterface.Controls[i].WidgetId,
+                Assert.Equal(definition.InferredEditorInterface.Controls[i].WidgetId,
                     baseEditorInterface.Controls[i].WidgetId);
             }
         }

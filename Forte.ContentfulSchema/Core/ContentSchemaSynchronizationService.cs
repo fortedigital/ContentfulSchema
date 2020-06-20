@@ -21,7 +21,7 @@ namespace Forte.ContentfulSchema.Core
             var existingContentTypes = await this.contentfulManagementClient.GetContentTypes();
 
             var matchedTypes = inferedDefinitions.GroupJoin(existingContentTypes,
-                infered => infered.InferedContentType.SystemProperties.Id,
+                infered => infered.InferredContentType.SystemProperties.Id,
                 existing => existing.SystemProperties.Id,
                 (i, e) => (InferedContentTypeDefinition: i, ExistingType: e.SingleOrDefault()));
 
@@ -35,7 +35,7 @@ namespace Forte.ContentfulSchema.Core
                 }
                 catch (Exception e)
                 {
-                    throw new Exception($"Failed to update content type: {syncItem.InferedContentTypeDefinition.InferedContentType.SystemProperties.Id}.", e);
+                    throw new Exception($"Failed to update content type: {syncItem.InferedContentTypeDefinition.InferredContentType.SystemProperties.Id}.", e);
                 }
             }
         }
@@ -46,7 +46,7 @@ namespace Forte.ContentfulSchema.Core
             var contentType = syncItem.ExistingContentType;
             if (contentType == null)
             {
-                contentType = await this.CreateOrUpdateContentType(syncItem.InferedContentTypeDefinition.InferedContentType);
+                contentType = await this.CreateOrUpdateContentType(syncItem.InferedContentTypeDefinition.InferredContentType);
             }
             else
             {
