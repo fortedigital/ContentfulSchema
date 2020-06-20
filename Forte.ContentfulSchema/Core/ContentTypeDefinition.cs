@@ -80,6 +80,18 @@ namespace Forte.ContentfulSchema.Core
                     this.UpdateField(match.Existing, match.Updated, ref modified); 
                 }
             }
+
+            if (InferedContentType.Fields.Count == contentType.Fields.Count)
+            {
+                for (var i = 0; i < InferedContentType.Fields.Count; i++)
+                {
+                    if (InferedContentType.Fields[i]?.Id != contentType.Fields[i]?.Id) // order has changed
+                    {
+                            modified = true;
+                    }
+                }
+                
+            }
             
             return modified;
         }
