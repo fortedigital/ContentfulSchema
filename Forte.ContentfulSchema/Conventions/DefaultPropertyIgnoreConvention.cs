@@ -13,6 +13,7 @@ namespace Forte.ContentfulSchema.Conventions
             property => property.CanWrite == false,
             property => property.Name == "Sys" && property.PropertyType == typeof(SystemProperties),
             property => property.GetCustomAttribute<JsonIgnoreAttribute>() != null,
+            property => property.GetMethod.IsPrivate && property.GetCustomAttribute<JsonPropertyAttribute>() == null 
         };
     }
 }

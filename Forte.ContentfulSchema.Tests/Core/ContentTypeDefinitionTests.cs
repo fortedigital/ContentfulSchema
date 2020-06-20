@@ -46,54 +46,6 @@ namespace Forte.ContentfulSchema.Tests.Core
             Assert.True(definition.Update(originalContentType));
         }
 
-        public static IEnumerable<object[]> ContentTypeModificators => new[]
-        {
-            new Action<ContentType>[] {ct => ct.SystemProperties.Id = "321"},
-            new Action<ContentType>[] {ct => ct.Name = "NewName"},
-            new Action<ContentType>[] {ct => ct.Description = "NewDescription"},
-            new Action<ContentType>[] {ct => ct.DisplayField = "NewDisplayField"}
-        };
-
-        public static IEnumerable<object[]> FieldsModificators => new[]
-        {
-           new Action<List<Field>>[] { f =>
-                {
-                    f.Clear();
-                    f.Add(new Field {Id = "NewField1"});
-                }
-            },
-            new Action<List<Field>>[] { f => f[0].Name = "ChangedFieldName" },
-            new Action<List<Field>>[] { f => f[0].Type = "Text" },
-            new Action<List<Field>>[] { f => f[0].Omitted = true },
-            new Action<List<Field>>[] { f => f[0].Localized = true },
-            new Action<List<Field>>[] { f => f[0].Required = true },
-            new Action<List<Field>>[] { f => f[0].LinkType = "Entry" },
-            new Action<List<Field>>[] { f => f[0].Disabled = true },
-            new Action<List<Field>>[] { f => f[0].Validations = new List<IFieldValidator>(){new UniqueValidator()} },
-            new Action<List<Field>>[] { f => f[0].Items = new Schema(){LinkType = "TestLinkType"}},
-            new Action<List<Field>>[] { f => f[0].Items = new Schema(){Type = "TestType"}},
-            new Action<List<Field>>[] { f => f[0].Items = new Schema(){Validations = new List<IFieldValidator>(){new UniqueValidator()}}},
-            new Action<List<Field>>[] { f => f.Clear() },
-            new Action<List<Field>>[] { f => f.AddRange(new List<Field>{ new Field {Id = "NewField1"}, new Field {Id = "NewField2"} }) },
-        };
-
-        private static ContentType CreateDefaultContentType()
-        {
-            return new ContentType
-            {    
-                SystemProperties = new SystemProperties{Id = "123"},
-                Description = "Description",
-                DisplayField = "DisplayField",
-                Name = "Name",
-                Fields = new List<Field>{ new Field{ Id = "field1"} }
-            };
-        }
-
-        private static ContentType CloneContentType(ContentType ct)
-        {
-            return JsonConvert.DeserializeObject<ContentType>(JsonConvert.SerializeObject(ct));
-        }
-
         [Fact]
         public void ShouldReturnTrueWhenUpdatingEditorInterface()
         {
@@ -104,7 +56,7 @@ namespace Forte.ContentfulSchema.Tests.Core
             baseEditorInterface.Controls.AddRange(new List<EditorInterfaceControl>{ new EditorInterfaceControl { FieldId = "EditorField1", WidgetId = "OldWidgetId1" }, new EditorInterfaceControl { FieldId = "EditorField2", WidgetId = "OldWidgetId2" } });
             
             Assert.True(definition.Update(baseEditorInterface));
-            for (int i = 0; i < baseEditorInterface.Controls.Count; i++)
+            for (var i = 0; i < baseEditorInterface.Controls.Count; i++)
             {
                 Assert.Equal(definition.InferedEditorInterface.Controls[i].FieldId,
                     baseEditorInterface.Controls[i].FieldId);
@@ -159,31 +111,60 @@ namespace Forte.ContentfulSchema.Tests.Core
             }, 
         };
 
-        private EditorInterface CreateDefaultNewEditorInterface()
+        public static IEnumerable<object[]> ContentTypeModificators => new[]
+        {
+            new Action<ContentType>[] {ct => ct.SystemProperties.Id = "321"},
+            new Action<ContentType>[] {ct => ct.Name = "NewName"},
+            new Action<ContentType>[] {ct => ct.Description = "NewDescription"},
+            new Action<ContentType>[] {ct => ct.DisplayField = "NewDisplayField"}
+        };
+
+        public static IEnumerable<object[]> FieldsModificators => new[]
+        {
+           new Action<List<Field>>[] { f =>
+                {
+                    f.Clear();
+                    f.Add(new Field {Id = "NewField1"});
+                }
+            },
+            new Action<List<Field>>[] { f => f[0].Name = "ChangedFieldName" },
+            new Action<List<Field>>[] { f => f[0].Type = "Text" },
+            new Action<List<Field>>[] { f => f[0].Omitted = true },
+            new Action<List<Field>>[] { f => f[0].Localized = true },
+            new Action<List<Field>>[] { f => f[0].Required = true },
+            new Action<List<Field>>[] { f => f[0].LinkType = "Entry" },
+            new Action<List<Field>>[] { f => f[0].Disabled = true },
+            new Action<List<Field>>[] { f => f[0].Validations = new List<IFieldValidator>(){new UniqueValidator()} },
+            new Action<List<Field>>[] { f => f[0].Items = new Schema(){LinkType = "TestLinkType"}},
+            new Action<List<Field>>[] { f => f[0].Items = new Schema(){Type = "TestType"}},
+            new Action<List<Field>>[] { f => f[0].Items = new Schema(){Validations = new List<IFieldValidator>(){new UniqueValidator()}}},
+            new Action<List<Field>>[] { f => f.Clear() },
+            new Action<List<Field>>[] { f => f.AddRange(new List<Field>{ new Field {Id = "NewField1"}, new Field {Id = "NewField2"} }) },
+        };
+
+        private static ContentType CreateDefaultContentType()
+        {
+            return new ContentType
+            {    
+                SystemProperties = new SystemProperties{Id = "123"},
+                Description = "Description",
+                DisplayField = "DisplayField",
+                Name = "Name",
+                Fields = new List<Field>{ new Field{ Id = "field1"} }
+            };
+        }
+
+        private static ContentType CloneContentType(ContentType ct)
+        {
+            return JsonConvert.DeserializeObject<ContentType>(JsonConvert.SerializeObject(ct));
+        }
+
+        private static EditorInterface CreateDefaultNewEditorInterface()
         {
             var editor = new EditorInterface{Controls = new List<EditorInterfaceControl>()};
             editor.Controls.AddRange(new List<EditorInterfaceControl>{ new EditorInterfaceControl { FieldId = "EditorField1", WidgetId = "NewWidgetId1" }, new EditorInterfaceControl { FieldId = "EditorField2", WidgetId = "NewWidgetId2" } });
             
             return editor;
         }
-
-//        [Theory]
-//        [InlineData(false)]
-//        [InlineData(true)]
-//        public void ShouldReturnValueDependingFromTheFieldComparerResult(bool areEqual)
-//        {
-//            var fieldComparer = new Mock<IEqualityComparer<Field>>();
-//            fieldComparer.Setup(m => m.Equals(It.IsAny<Field>(), It.IsAny<Field>()))
-//                .Returns(areEqual);
-
-//            var customComparer = new ContentTypeComparer(fieldComparer.Object);
-
-//            var firstContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
-//            var secondContentType = ContentTypeBuilder.New.WithFields(new Field {Id = "1"}).Build();
-
-//            var result = customComparer.Equals(firstContentType, secondContentType);
-
-//            Assert.Equal(areEqual, result);
-//        }
     }
 }

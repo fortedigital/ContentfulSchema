@@ -13,22 +13,22 @@ namespace Forte.ContentfulSchema.Discovery
 {
     public class SchemaDiscoveryService
     {
-        private readonly IContentTypeNamingConvention contentTypeNamingConvention;
-        private readonly IEnumerable<Func<PropertyInfo, bool>> propertyIgnorePredicates;
-        private readonly IContentTypeFieldNamingConvention fieldNamingConvention;
-        private readonly IContentTypeFieldTypeConvention fieldTypeConvention;
-        private readonly IEnumerable<IFieldValidationProvider> fieldValidationProviders;
-        private readonly IFieldControlConvention fieldControlConvention;
+        private readonly IContentTypeNamingConvention _contentTypeNamingConvention;
+        private readonly IEnumerable<Func<PropertyInfo, bool>> _propertyIgnorePredicates;
+        private readonly IContentTypeFieldNamingConvention _fieldNamingConvention;
+        private readonly IContentTypeFieldTypeConvention _fieldTypeConvention;
+        private readonly IEnumerable<IFieldValidationProvider> _fieldValidationProviders;
+        private readonly IFieldControlConvention _fieldControlConvention;
 
 
         public SchemaDiscoveryService(IContentTypeNamingConvention contentTypeNamingConvention, IContentTypeFieldNamingConvention fieldNamingConvention, IEnumerable<Func<PropertyInfo, bool>> propertyIgnorePredicates, IContentTypeFieldTypeConvention fieldTypeConvention, IFieldControlConvention fieldControlConvention, IEnumerable<IFieldValidationProvider> fieldValidationProviders)
         {
-            this.contentTypeNamingConvention = contentTypeNamingConvention;
-            this.propertyIgnorePredicates = propertyIgnorePredicates;
-            this.fieldNamingConvention = fieldNamingConvention;
-            this.fieldTypeConvention = fieldTypeConvention;
-            this.fieldValidationProviders = fieldValidationProviders;
-            this.fieldControlConvention = fieldControlConvention;
+            _contentTypeNamingConvention = contentTypeNamingConvention;
+            _propertyIgnorePredicates = propertyIgnorePredicates;
+            _fieldNamingConvention = fieldNamingConvention;
+            _fieldTypeConvention = fieldTypeConvention;
+            _fieldValidationProviders = fieldValidationProviders;
+            _fieldControlConvention = fieldControlConvention;
         }
 
         public ContentSchemaDefinition DiscoverSchema(IEnumerable<Type> types)
@@ -40,7 +40,7 @@ namespace Forte.ContentfulSchema.Discovery
                 .ToList();
         
             var contentTypeDefinitions = this.GetContentTypeDefinitions(discoveredContentTypes);
-            
+
             return new ContentSchemaDefinition(contentTypeDefinitions);
         }
 
@@ -57,10 +57,10 @@ namespace Forte.ContentfulSchema.Discovery
                     new ContentType
                     {
                         SystemProperties = new SystemProperties { Id = contentType.ContentTypeId },
-                        Name = this.contentTypeNamingConvention.GetContentTypeName(contentType.ClrType),
-                        Description = this.contentTypeNamingConvention.GetContentTypeDescription(contentType.ClrType),
+                        Name = this._contentTypeNamingConvention.GetContentTypeName(contentType.ClrType),
+                        Description = this._contentTypeNamingConvention.GetContentTypeDescription(contentType.ClrType),
                         Fields = fieldDefinitions.Select(d => d.Field).ToList(),
-                        DisplayField = (fieldDefinitions.FirstOrDefault(d => d.IsDisplay) ?? fieldDefinitions.First()).Field.Id
+                        DisplayField = (fieldDefinitions.FirstOrDefault(d => d.IsDisplay) ?? fieldDefinitions.FirstOrDefault())?.Field.Id
                     },
                     new EditorInterface
                     {
@@ -81,21 +81,20 @@ namespace Forte.ContentfulSchema.Discovery
             
             foreach (var property in properties)
             {
-                if (this.propertyIgnorePredicates.Any(p => p(property)))
+                if (this._propertyIgnorePredicates.Any(p => p(property)))
                     continue;
 
-                var fieldId = this.fieldNamingConvention.GetFieldId(property);
-                var fieldType = this.fieldTypeConvention.GetFieldType(property, contentTypeNameLookup);
-
+                var fieldId = this._fieldNamingConvention.GetFieldId(property);
+                var fieldType = this._fieldTypeConvention.GetFieldType(property, contentTypeNameLookup);
                 yield return new FieldDefinition(
                     new Field
                     {
                         Id = fieldId,
-                        Name = this.fieldNamingConvention.GetFieldName(property),
+                        Name = this._fieldNamingConvention.GetFieldName(property),
                         Type = fieldType,
-                        LinkType = fieldType == SystemFieldTypes.Link ? this.fieldTypeConvention.GetLinkType(property, contentTypeNameLookup) : null,
+                        LinkType = fieldType == SystemFieldTypes.Link ? this._fieldTypeConvention.GetLinkType(property, contentTypeNameLookup) : null,
                         Items = fieldType == SystemFieldTypes.Array ? this.GetArraySchema(property, contentTypeNameLookup) : null,
-                        Validations = this.fieldValidationProviders.SelectMany(p => p.GetFieldValidators(property, contentTypeNameLookup)).ToList(),
+                        Validations = this._fieldValidationProviders.SelectMany(p => p.GetFieldValidators(property, contentTypeNameLookup)).ToList(),
                         Disabled = property.GetCustomAttribute<ObsoleteAttribute>() != null,
                         Required = property.GetCustomAttribute<RequiredAttribute>() != null,
                         Localized = property.GetCustomAttribute<LocalizableAttribute>()?.IsLocalizable ?? false
@@ -103,7 +102,7 @@ namespace Forte.ContentfulSchema.Discovery
                     new EditorInterfaceControl
                     {
                         FieldId = fieldId,
-                        WidgetId = this.fieldControlConvention.GetWidgetId(property),
+                        WidgetId = this._fieldControlConvention.GetWidgetId(property),
                         Settings = null
                     },
                     property.GetCustomAttribute<DisplayFieldAttribute>() != null);
@@ -112,12 +111,12 @@ namespace Forte.ContentfulSchema.Discovery
 
         private Schema GetArraySchema(PropertyInfo property, IDictionary<Type, string> contentTypeNameLookup)
         {
-            var arrayType = this.fieldTypeConvention.GetArrayType(property, contentTypeNameLookup);
+            var arrayType = this._fieldTypeConvention.GetArrayType(property, contentTypeNameLookup);
             return new Schema
             {
                 Type = arrayType.Type,
                 LinkType = arrayType.LinkType,
-                Validations = this.fieldValidationProviders.SelectMany(p => p.GetArrayItemValidators(property, contentTypeNameLookup)).ToList()
+                Validations = this._fieldValidationProviders.SelectMany(p => p.GetArrayItemValidators(property, contentTypeNameLookup)).ToList()
             };
         }
 
