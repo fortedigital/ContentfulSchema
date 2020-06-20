@@ -1,13 +1,10 @@
+using System;
+using System.Collections.Generic;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 using Forte.ContentfulSchema.Core;
-using Moq;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Forte.ContentfulSchema.Tests.Core
 {
@@ -44,6 +41,29 @@ namespace Forte.ContentfulSchema.Tests.Core
             modifyFields(originalContentType.Fields);
 
             Assert.True(definition.Update(originalContentType));
+        }
+
+        [Fact]
+        public void ShouldReturnTrueForUpdatedFieldsOrder()
+        {
+            var originalContentType = CreateDefaultContentType();
+            OrderFieldsModificators(originalContentType.Fields);
+            var contentTypeClone = CloneContentType(originalContentType);
+            var definition = new ContentTypeDefinition(contentTypeClone, null);
+            OrderFieldsModificatorsReverse(originalContentType.Fields);
+
+            Assert.True(definition.Update(originalContentType));
+        }
+
+        [Fact]
+        public void ShouldReturnFalseForNotUpdatedFieldsOrder()
+        {
+            var originalContentType = CreateDefaultContentType();
+            OrderFieldsModificators(originalContentType.Fields);
+            var contentTypeClone = CloneContentType(originalContentType);
+            var definition = new ContentTypeDefinition(contentTypeClone, null);
+
+            Assert.False(definition.Update(originalContentType));
         }
 
         [Fact]
@@ -141,6 +161,15 @@ namespace Forte.ContentfulSchema.Tests.Core
             new Action<List<Field>>[] { f => f.Clear() },
             new Action<List<Field>>[] { f => f.AddRange(new List<Field>{ new Field {Id = "NewField1"}, new Field {Id = "NewField2"} }) },
         };
+
+        public static readonly Action<List<Field>> OrderFieldsModificators = f =>
+        {
+            f.Clear();
+            f.Add(new Field {Id = "NewField1"});
+            f.Add(new Field {Id = "NewField2"});
+        };
+
+        public static Action<List<Field>> OrderFieldsModificatorsReverse = f => { f.Reverse(); };
 
         private static ContentType CreateDefaultContentType()
         {
