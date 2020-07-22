@@ -91,7 +91,6 @@ namespace Forte.ContentfulSchema.Core
                             modified = true;
                     }
                 }
-                
             }
             
             return modified;

@@ -44,29 +44,6 @@ namespace Forte.ContentfulSchema.Tests.Core
         }
 
         [Fact]
-        public void ShouldReturnTrueForUpdatedFieldsOrder()
-        {
-            var originalContentType = CreateDefaultContentType();
-            OrderFieldsModificators(originalContentType.Fields);
-            var contentTypeClone = CloneContentType(originalContentType);
-            var definition = new ContentTypeDefinition(contentTypeClone, null);
-            OrderFieldsModificatorsReverse(originalContentType.Fields);
-
-            Assert.True(definition.Update(originalContentType));
-        }
-
-        [Fact]
-        public void ShouldReturnFalseForNotUpdatedFieldsOrder()
-        {
-            var originalContentType = CreateDefaultContentType();
-            OrderFieldsModificators(originalContentType.Fields);
-            var contentTypeClone = CloneContentType(originalContentType);
-            var definition = new ContentTypeDefinition(contentTypeClone, null);
-
-            Assert.False(definition.Update(originalContentType));
-        }
-
-        [Fact]
         public void ShouldReturnTrueWhenUpdatingEditorInterface()
         {
             var baseEditorInterface = new EditorInterface{ Controls = new List<EditorInterfaceControl>() };
@@ -160,16 +137,8 @@ namespace Forte.ContentfulSchema.Tests.Core
             new Action<List<Field>>[] { f => f[0].Items = new Schema(){Validations = new List<IFieldValidator>(){new UniqueValidator()}}},
             new Action<List<Field>>[] { f => f.Clear() },
             new Action<List<Field>>[] { f => f.AddRange(new List<Field>{ new Field {Id = "NewField1"}, new Field {Id = "NewField2"} }) },
+            new Action<List<Field>>[] { f => f.Reverse() },
         };
-
-        public static readonly Action<List<Field>> OrderFieldsModificators = f =>
-        {
-            f.Clear();
-            f.Add(new Field {Id = "NewField1"});
-            f.Add(new Field {Id = "NewField2"});
-        };
-
-        public static Action<List<Field>> OrderFieldsModificatorsReverse = f => { f.Reverse(); };
 
         private static ContentType CreateDefaultContentType()
         {
@@ -179,7 +148,7 @@ namespace Forte.ContentfulSchema.Tests.Core
                 Description = "Description",
                 DisplayField = "DisplayField",
                 Name = "Name",
-                Fields = new List<Field>{ new Field{ Id = "field1"} }
+                Fields = new List<Field>{ new Field{ Id = "field1" }, new Field { Id = "field2" } }
             };
         }
 
