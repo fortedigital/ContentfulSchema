@@ -12,7 +12,7 @@ namespace Forte.ContentfulSchema
 
         public static bool IsEnumerable(this Type type)
         {
-            return type.IsGenericType &&
+            return type.IsArray || type.IsGenericType &&
                    typeof(IEnumerable<>).MakeGenericType(type.GetGenericArguments()[0])
                        .IsAssignableFrom(type);
         }
@@ -21,7 +21,10 @@ namespace Forte.ContentfulSchema
         {
             if (type.IsEnumerable() == false)
                 return false;
-            
+
+            if (type.IsArray && type.GetElementType()?.Name == typeof(T).Name)
+                return true;
+
             var elementType = type.GetGenericArguments()[0];
             return type.IsGenericType && 
                    typeof(IEnumerable<>).MakeGenericType(elementType).IsAssignableFrom(type) &&
@@ -32,7 +35,8 @@ namespace Forte.ContentfulSchema
         {
             if (type.IsEnumerable() == false)
                 throw new InvalidOperationException();
-            return type.GetGenericArguments()[0];
+
+            return type.IsArray ? type.GetElementType() : type.GetGenericArguments()[0];
         }
     }
 }
