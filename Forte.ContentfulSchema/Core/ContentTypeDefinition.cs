@@ -82,13 +82,20 @@ namespace Forte.ContentfulSchema.Core
                 }
             }
 
-            if (InferredContentType.Fields.Count == contentType.Fields.Count)
+            var disabledContentTypeFields = contentType.Fields.Where(field => field.Disabled).ToList();
+            var enabledContentTypeFields = contentType.Fields.Where(field => field.Disabled == false).ToList();
+            var inferredContentTypeFields = InferredContentType.Fields;
+
+            if (inferredContentTypeFields.Count == enabledContentTypeFields.Count)
             {
-                for (var i = 0; i < InferredContentType.Fields.Count; i++)
+                for (var i = 0; i < inferredContentTypeFields.Count; i++)
                 {
-                    if (InferredContentType.Fields[i]?.Id != contentType.Fields[i]?.Id) // order has changed
+                    if (inferredContentTypeFields[i]?.Id != enabledContentTypeFields[i]?.Id) // order has changed
                     {
                             modified = true;
+                            //update order
+                            contentType.Fields = inferredContentTypeFields.Union(disabledContentTypeFields).ToList();
+                            break;
                     }
                 }
             }
